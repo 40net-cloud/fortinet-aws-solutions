@@ -1,0 +1,982 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create a VPC then launch two FortiGates in A-P cluster running in a dual AZs
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: VPC Configuration
+        Parameters:
+          - VPCCIDR
+          - PublicSubnet1
+          - PublicSubnet1RouterIP
+          - PrivateSubnet1
+          - PrivateSubnet1RouterIP
+          - HeartbeatSubnet1
+          - MgmtSubnet1
+          - MgmtSubnet1RouterIP
+          - PublicSubnet2
+          - PublicSubnet2RouterIP
+          - PrivateSubnet2
+          - PrivateSubnet2RouterIP
+          - HeartbeatSubnet2
+          - MgmtSubnet2
+          - MgmtSubnet2RouterIP
+      - Label:
+          default: FortiGate Instance Configuration
+        Parameters:
+          - AZForFGTA
+          - AZForFGTB
+          - FGTInstanceType
+          - CIDRForFGTAccess
+          - KeyPair
+          - HAsecret
+      - Label:
+          default: FortiGate IP Configuration
+        Parameters:
+          - FortiGateAHeartbeatIP
+          - FortiGateBHeartbeatIP
+Parameters:
+  VPCCIDR:
+    Type: String
+    Default: 10.0.0.0/16
+    Description: Enter the VPC CIDR that you are using
+  AZForFGTA:
+    Type: 'AWS::EC2::AvailabilityZone::Name'
+    Description: Select the first AZ for FortiGateA
+  AZForFGTB:
+    Type: 'AWS::EC2::AvailabilityZone::Name'
+    Description: Select the second AZ for FortiGateB
+  PublicSubnet1:
+    Type: String
+    Default: 10.0.1.0/24
+    Description: Provide a network CIDR for the Public Subnet1
+  PublicSubnet1RouterIP:
+    Type: String
+    Default: 10.0.1.1
+    Description: Provide the IP of the gateway for the public subnet1
+  PrivateSubnet1:
+    Type: String
+    Default: 10.0.2.0/24
+    Description: Provide a network CIDR for the private subnet1
+  PrivateSubnet1RouterIP:
+    Type: String
+    Default: 10.0.2.1
+    Description: Provide the IP of the gateway for the private subnet1
+  HeartbeatSubnet1:
+    Type: String
+    Default: 10.0.3.0/24
+    Description: Provide a network CIDR for the heartbeat subnet1
+  MgmtSubnet1:
+    Type: String
+    Default: 10.0.4.0/24
+    Description: Provide a network CIDR for the management subnet1
+  MgmtSubnet1RouterIP:
+    Type: String
+    Default: 10.0.4.1
+    Description: Provide the IP of the gateway for the management subnet1
+  PublicSubnet2:
+    Type: String
+    Default: 10.0.10.0/24
+    Description: Provide a network CIDR for the public subnet2
+  PublicSubnet2RouterIP:
+    Type: String
+    Default: 10.0.10.1
+    Description: Provide the IP of the gateway for the public subnet2
+  PrivateSubnet2:
+    Type: String
+    Default: 10.0.20.0/24
+    Description: Provide a network CIDR for the private subnet2
+  PrivateSubnet2RouterIP:
+    Type: String
+    Default: 10.0.20.1
+    Description: Provide the IP of the gateway for the private subnet2
+  HeartbeatSubnet2:
+    Type: String
+    Default: 10.0.30.0/24
+    Description: Provide a network CIDR for the heartbeat subnet2
+  MgmtSubnet2:
+    Type: String
+    Default: 10.0.40.0/24
+    Description: Provide a network CIDR for the management subnet2
+  MgmtSubnet2RouterIP:
+    Type: String
+    Default: 10.0.40.1
+    Description: Provide the IP of the gateway for the management subnet2
+  FGTInstanceType:
+    Type: String
+    Default: c5.xlarge
+    Description: Select the instance type for the FortiGates
+    AllowedValues:
+      - t3.xlarge
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.18xlarge
+  CIDRForFGTAccess:
+    Type: String
+    Default: 0.0.0.0/0
+    Description: Enter the CIDR from which FortiGate instances need to be accessed from
+  KeyPair:
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Description: Select the keypair for the FortiGates
+  HAsecret:
+    Type: String
+    Description: Secret for HA peer identification
+  FortiGateAHeartbeatIP:
+    Type: String
+    Default: 10.0.3.10/24
+    Description: >-
+      Enter the IP address in CIDR form for the heartbeat interface of
+      FortiGateA (IP from heartbeat Subnet1)
+  FortiGateBHeartbeatIP:
+    Type: String
+    Default: 10.0.30.10/24
+    Description: >-
+      Enter the IP address in CIDR form for the heartbeat interface of
+      FortiGateB (IP from heartbeat Subnet2)
+Mappings:
+  RegionMap:
+    eu-north-1:
+      fgtami: ami-34bf344a
+    ap-south-1:
+      fgtami: ami-0b71271bc53238423
+    eu-west-3:
+      fgtami: ami-06dc0733eb79a0101
+    eu-west-2:
+      fgtami: ami-0666078c010cb391a
+    eu-west-1:
+      fgtami: ami-0c14998b35a39578e
+    ap-northeast-2:
+      fgtami: ami-0a796272ef341a29d
+    ap-northeast-1:
+      fgtami: ami-09cdcd4c2445e2c70
+    sa-east-1:
+      fgtami: ami-034495a12fdb747ce
+    ca-central-1:
+      fgtami: ami-06068c796e12ce93a
+    ap-southeast-1:
+      fgtami: ami-02502caa43eb2d055
+    ap-southeast-2:
+      fgtami: ami-09c29aa6a848e77b9
+    eu-central-1:
+      fgtami: ami-0f670719612ad57cc
+    us-east-1:
+      fgtami: ami-0face455a14251c57
+    us-east-2:
+      fgtami: ami-07ca9dae55f42b1c3
+    us-west-1:
+      fgtami: ami-0c106aaaac4c4abd8
+    us-west-2:
+      fgtami: ami-0439b030915c59e67
+Conditions: {}
+Resources:
+  VPCID:
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - VPCID
+    Type: 'AWS::EC2::VPC'
+  InstanceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: ApplicationPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ec2:Describe*'
+                  - 'ec2:AssociateAddress'
+                  - 'ec2:AssignPrivateIpAddresses'
+                  - 'ec2:UnassignPrivateIpAddresses'
+                  - 'ec2:ReplaceRoute'
+                  - 's3:GetObject'
+                Resource: '*'
+  InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref InstanceRole
+  PrivateSubnetA:
+    Properties:
+      AvailabilityZone: !Ref AZForFGTA
+      CidrBlock: !Ref PrivateSubnet1
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - PrivateSubnet1
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::Subnet'
+  PublicSubnetA:
+    Properties:
+      AvailabilityZone: !Ref AZForFGTA
+      CidrBlock: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - PublicSubnet1
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::Subnet'
+  HeartbeatSubnetA:
+    Properties:
+      AvailabilityZone: !Ref AZForFGTA
+      CidrBlock: !Ref HeartbeatSubnet1
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - HeartbeatSubnet1
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::Subnet'
+  MgmtSubnetA:
+    Properties:
+      AvailabilityZone: !Ref AZForFGTA
+      CidrBlock: !Ref MgmtSubnet1
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - MgmtSubnet1
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::Subnet'
+  PrivateSubnetB:
+    Properties:
+      AvailabilityZone: !Ref AZForFGTB
+      CidrBlock: !Ref PrivateSubnet2
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - PrivateSubnet2
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::Subnet'
+  PublicSubnetB:
+    Properties:
+      AvailabilityZone: !Ref AZForFGTB
+      CidrBlock: !Ref PublicSubnet2
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - PublicSubnet2
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::Subnet'
+  HeartbeatSubnetB:
+    Properties:
+      AvailabilityZone: !Ref AZForFGTB
+      CidrBlock: !Ref HeartbeatSubnet2
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - HeartbeatSubnet2
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::Subnet'
+  MgmtSubnetB:
+    Properties:
+      AvailabilityZone: !Ref AZForFGTB
+      CidrBlock: !Ref MgmtSubnet2
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - MgmtSubnet2
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::Subnet'
+  AttachGateway:
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+  InternetGateway:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - IGW
+    Type: 'AWS::EC2::InternetGateway'
+  PublicDefaultRoute:
+    DependsOn: AttachGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref RouteTable
+    Type: 'AWS::EC2::Route'
+  RouteTable:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - PublicRoute
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::RouteTable'
+  HeartbeatRouteTable:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - HeartbeatRoute
+      VpcId: !Ref VPCID
+    Type: 'AWS::EC2::RouteTable'
+  FGTSecGrpBase:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPCID
+      GroupDescription: FGTSecGrp
+      SecurityGroupIngress:
+        - Description: Allow remote access to FGT
+          IpProtocol: '-1'
+          FromPort: '0'
+          ToPort: '65535'
+          CidrIp: !Ref CIDRForFGTAccess
+        - Description: Allow local VPC access to FGT
+          IpProtocol: '-1'
+          FromPort: '0'
+          ToPort: '65535'
+          CidrIp: !Ref VPCCIDR
+  FGTSecGrpFGTRule:
+    DependsOn: FGTSecGrpBase
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref FGTSecGrpBase
+      Description: Allow FGTs to access each other
+      IpProtocol: '-1'
+      FromPort: '0'
+      ToPort: '65535'
+      SourceSecurityGroupId: !Ref FGTSecGrpBase
+  FgtA:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !FindInMap 
+        - RegionMap
+        - !Ref 'AWS::Region'
+        - fgtami
+      InstanceType: !Ref FGTInstanceType
+      IamInstanceProfile: !Ref InstanceProfile
+      KeyName: !Ref KeyPair
+      NetworkInterfaces:
+        - NetworkInterfaceId: !Ref FGTAENI0
+          DeviceIndex: '0'
+        - NetworkInterfaceId: !Ref FGTAENI1
+          DeviceIndex: '1'
+        - NetworkInterfaceId: !Ref FGTAENI2
+          DeviceIndex: '2'
+        - NetworkInterfaceId: !Ref FGTAENI3
+          DeviceIndex: '3'
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - '-FgtA'
+      UserData: !Base64 
+        'Fn::Join':
+          - |+
+
+          - - config sytem global
+            - set hostname FGTA
+            - end
+            - config system interface
+            - edit port1
+            - set alias public
+            - set mode static
+            - !Join 
+              - ''
+              - - 'set ip '
+                - !GetAtt 
+                  - FGTAENI0
+                  - PrimaryPrivateIpAddress
+                - /
+                - !Select 
+                  - '1'
+                  - !Split 
+                    - /
+                    - !Ref PublicSubnet1
+            - set allowaccess ping https ssh
+            - set mtu-override enable
+            - set mtu 9001
+            - next
+            - edit port2
+            - set alias private
+            - set mode static
+            - !Join 
+              - ''
+              - - 'set ip '
+                - !GetAtt 
+                  - FGTAENI1
+                  - PrimaryPrivateIpAddress
+                - /
+                - !Select 
+                  - '1'
+                  - !Split 
+                    - /
+                    - !Ref PrivateSubnet1
+            - set allowaccess ping https ssh
+            - set mtu-override enable
+            - set mtu 9001
+            - next
+            - edit port3
+            - set alias hasync
+            - set mode static
+            - !Join 
+              - ''
+              - - 'set ip '
+                - !Ref FortiGateAHeartbeatIP
+            - set allowaccess ping
+            - set mtu-override enable
+            - set mtu 9001
+            - next
+            - edit port4
+            - set alias hamgmt
+            - set mode static
+            - !Join 
+              - ''
+              - - 'set ip '
+                - !GetAtt 
+                  - FGTAENI3
+                  - PrimaryPrivateIpAddress
+                - /
+                - !Select 
+                  - '1'
+                  - !Split 
+                    - /
+                    - !Ref MgmtSubnet1
+            - set allowaccess ping https ssh
+            - set mtu-override enable
+            - set mtu 9001
+            - next
+            - end
+            - config router static
+            - edit 1
+            - set device port1
+            - !Join 
+              - ''
+              - - 'set gateway '
+                - !Ref PublicSubnet1RouterIP
+            - next
+            - edit 2
+            - !Join 
+              - ''
+              - - 'set dst '
+                - !Ref VPCCIDR
+            - set device port2
+            - !Join 
+              - ''
+              - - 'set gateway '
+                - !Ref PrivateSubnet1RouterIP
+            - next
+            - end
+            - config firewall policy
+            - edit 1
+            - set name outbound-all
+            - set srcintf port2
+            - set dstintf port1
+            - set srcaddr all
+            - set dstaddr all
+            - set action accept
+            - set schedule always
+            - set service ALL
+            - set logtraffic all
+            - set nat enable
+            - next
+            - end
+            - config system ha
+            - set group-name "fortinet"
+            - set group-id 1
+            - !Join 
+              - ''
+              - - 'set password '
+                - !Ref HAsecret
+            - set mode a-p
+            - set hbdev port3 50
+            - set session-pickup enable
+            - set ha-mgmt-status enable
+            - config ha-mgmt-interface
+            - edit 1
+            - set interface port4
+            - !Join 
+              - ''
+              - - 'set gateway '
+                - !Ref MgmtSubnet1RouterIP
+            - next
+            - end
+            - set override disable
+            - set priority 255
+            - set unicast-hb enable
+            - !Join 
+              - ''
+              - - 'set unicast-hb-peerip '
+                - !Select 
+                  - '0'
+                  - !Split 
+                    - /
+                    - !Ref FortiGateBHeartbeatIP
+            - end
+  FgtB:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !FindInMap 
+        - RegionMap
+        - !Ref 'AWS::Region'
+        - fgtami
+      InstanceType: !Ref FGTInstanceType
+      IamInstanceProfile: !Ref InstanceProfile
+      KeyName: !Ref KeyPair
+      NetworkInterfaces:
+        - NetworkInterfaceId: !Ref FGTBENI0
+          DeviceIndex: '0'
+        - NetworkInterfaceId: !Ref FGTBENI1
+          DeviceIndex: '1'
+        - NetworkInterfaceId: !Ref FGTBENI2
+          DeviceIndex: '2'
+        - NetworkInterfaceId: !Ref FGTBENI3
+          DeviceIndex: '3'
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - '-FgtB'
+      UserData: !Base64 
+        'Fn::Join':
+          - |+
+
+          - - config sytem global
+            - set hostname FGTB
+            - end
+            - config system interface
+            - edit port1
+            - set alias public
+            - set mode static
+            - !Join 
+              - ''
+              - - 'set ip '
+                - !GetAtt 
+                  - FGTBENI0
+                  - PrimaryPrivateIpAddress
+                - /
+                - !Select 
+                  - '1'
+                  - !Split 
+                    - /
+                    - !Ref PublicSubnet2
+            - set allowaccess ping https ssh
+            - set mtu-override enable
+            - set mtu 9001
+            - next
+            - edit port2
+            - set alias private
+            - set mode static
+            - !Join 
+              - ''
+              - - 'set ip '
+                - !GetAtt 
+                  - FGTBENI1
+                  - PrimaryPrivateIpAddress
+                - /
+                - !Select 
+                  - '1'
+                  - !Split 
+                    - /
+                    - !Ref PrivateSubnet2
+            - set allowaccess ping https ssh
+            - set mtu-override enable
+            - set mtu 9001
+            - next
+            - edit port3
+            - set alias hasync
+            - set mode static
+            - !Join 
+              - ''
+              - - 'set ip '
+                - !Ref FortiGateBHeartbeatIP
+            - set allowaccess ping
+            - set mtu-override enable
+            - set mtu 9001
+            - next
+            - edit port4
+            - set alias hamgmt
+            - set mode static
+            - !Join 
+              - ''
+              - - 'set ip '
+                - !GetAtt 
+                  - FGTBENI3
+                  - PrimaryPrivateIpAddress
+                - /
+                - !Select 
+                  - '1'
+                  - !Split 
+                    - /
+                    - !Ref MgmtSubnet2
+            - set allowaccess ping https ssh
+            - set mtu-override enable
+            - set mtu 9001
+            - next
+            - end
+            - config router static
+            - edit 1
+            - set device port1
+            - !Join 
+              - ''
+              - - 'set gateway '
+                - !Ref PublicSubnet2RouterIP
+            - next
+            - edit 2
+            - !Join 
+              - ''
+              - - 'set dst '
+                - !Ref VPCCIDR
+            - set device port2
+            - !Join 
+              - ''
+              - - 'set gateway '
+                - !Ref PrivateSubnet2RouterIP
+            - next
+            - end
+            - config firewall policy
+            - edit 1
+            - set name outbound-all
+            - set srcintf port2
+            - set dstintf port1
+            - set srcaddr all
+            - set dstaddr all
+            - set action accept
+            - set schedule always
+            - set service ALL
+            - set logtraffic all
+            - set nat enable
+            - next
+            - end
+            - config system ha
+            - set group-name "fortinet"
+            - set group-id 1
+            - !Join 
+              - ''
+              - - 'set password '
+                - !Ref HAsecret
+            - set mode a-p
+            - set hbdev port3 50
+            - set session-pickup enable
+            - set ha-mgmt-status enable
+            - config ha-mgmt-interface
+            - edit 1
+            - set interface port4
+            - !Join 
+              - ''
+              - - 'set gateway '
+                - !Ref MgmtSubnet2RouterIP
+            - next
+            - end
+            - set override disable
+            - set priority 100
+            - set unicast-hb enable
+            - !Join 
+              - ''
+              - - 'set unicast-hb-peerip '
+                - !Select 
+                  - '0'
+                  - !Split 
+                    - /
+                    - !Ref FortiGateAHeartbeatIP
+            - end
+  FGTAENI0:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      Description: port1
+      GroupSet:
+        - !Ref FGTSecGrpBase
+      SourceDestCheck: 'false'
+      SubnetId: !Ref PublicSubnetA
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - FgtAENI0
+        - Key: Interface
+          Value: eth0
+  FGTBENI0:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      Description: port1
+      GroupSet:
+        - !Ref FGTSecGrpBase
+      SourceDestCheck: 'false'
+      SubnetId: !Ref PublicSubnetB
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - FgtBENI0
+        - Key: Interface
+          Value: eth0
+  FGTAENI1:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      Description: port2
+      GroupSet:
+        - !Ref FGTSecGrpBase
+      SourceDestCheck: 'false'
+      SubnetId: !Ref PrivateSubnetA
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - FgtAENI1
+  FGTBENI1:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      Description: port2
+      GroupSet:
+        - !Ref FGTSecGrpBase
+      SourceDestCheck: 'false'
+      SubnetId: !Ref PrivateSubnetB
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - FgtBENI1
+  FGTAENI2:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      Description: port3
+      GroupSet:
+        - !Ref FGTSecGrpBase
+      SourceDestCheck: 'false'
+      SubnetId: !Ref HeartbeatSubnetA
+      PrivateIpAddresses:
+        - PrivateIpAddress: !Select 
+            - '0'
+            - !Split 
+              - /
+              - !Ref FortiGateAHeartbeatIP
+          Primary: 'true'
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - FgtAENI2
+  FGTBENI2:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      Description: port3
+      GroupSet:
+        - !Ref FGTSecGrpBase
+      SourceDestCheck: 'false'
+      SubnetId: !Ref HeartbeatSubnetB
+      PrivateIpAddresses:
+        - PrivateIpAddress: !Select 
+            - '0'
+            - !Split 
+              - /
+              - !Ref FortiGateBHeartbeatIP
+          Primary: 'true'
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - FgtBENI2
+  FGTAENI3:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      Description: port4
+      GroupSet:
+        - !Ref FGTSecGrpBase
+      SourceDestCheck: 'false'
+      SubnetId: !Ref MgmtSubnetA
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - FgtAENI3
+  FGTBENI3:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      Description: port4
+      GroupSet:
+        - !Ref FGTSecGrpBase
+      SourceDestCheck: 'false'
+      SubnetId: !Ref MgmtSubnetB
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - FgtBENI3
+  ClusterEIP:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+    DependsOn: FgtA
+  FgtAMgmtEIP:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+    DependsOn: FgtA
+  FgtBMgmtEIP:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+    DependsOn: FgtB
+  ClusterAEIPASSOCIATION:
+    Type: 'AWS::EC2::EIPAssociation'
+    Properties:
+      AllocationId: !GetAtt 
+        - ClusterEIP
+        - AllocationId
+      NetworkInterfaceId: !Ref FGTAENI0
+    DependsOn: ClusterEIP
+  FgtAMgmtEIPASSOCIATION:
+    Type: 'AWS::EC2::EIPAssociation'
+    Properties:
+      AllocationId: !GetAtt 
+        - FgtAMgmtEIP
+        - AllocationId
+      NetworkInterfaceId: !Ref FGTAENI3
+    DependsOn: FgtAMgmtEIP
+  FgtBMgmtEIPASSOCIATION:
+    Type: 'AWS::EC2::EIPAssociation'
+    Properties:
+      AllocationId: !GetAtt 
+        - FgtBMgmtEIP
+        - AllocationId
+      NetworkInterfaceId: !Ref FGTBENI3
+    DependsOn: FgtBMgmtEIP
+  PrivateRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPCID
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - '-PrivateRouteTable'
+  DefaultRoute:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NetworkInterfaceId: !Ref FGTAENI1
+  HeartbeatAZ1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref HeartbeatSubnetA
+      RouteTableId: !Ref HeartbeatRouteTable
+  HeartbeatAZ2RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref HeartbeatSubnetB
+      RouteTableId: !Ref HeartbeatRouteTable
+  AZ1SubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnetA
+      RouteTableId: !Ref PrivateRouteTable
+  AZ2SubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnetB
+      RouteTableId: !Ref PrivateRouteTable
+  SubnetRouteTableAssociation1:
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref PublicSubnetA
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+  SubnetRouteTableAssociation2:
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref PublicSubnetB
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+  SubnetRouteTableAssociation3:
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref MgmtSubnetA
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+  SubnetRouteTableAssociation4:
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref MgmtSubnetB
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+  S3Endpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:*'
+            Resource:
+              - '*'
+      RouteTableIds:
+        - !Ref RouteTable
+      ServiceName: !Join 
+        - ''
+        - - com.amazonaws.
+          - !Ref 'AWS::Region'
+          - .s3
+      VpcId: !Ref VPCID
+Outputs:
+  FGTAURL:
+    Value: !Join 
+      - ''
+      - - 'https://'
+        - !Ref FgtAMgmtEIP
+    Description: URL to access FortigateA
+  FGTUsername:
+    Value: admin
+    Description: Username to access Fortigates
+  FGTAPassword:
+    Value: !Ref FgtA
+    Description: Password to access FortigateA
+  FGTBURL:
+    Value: !Join 
+      - ''
+      - - 'https://'
+        - !Ref FgtBMgmtEIP
+    Description: URL to access FortigateB
+  FGTBPassword:
+    Value: !Ref FgtB
+    Description: Password to access FortigateB
