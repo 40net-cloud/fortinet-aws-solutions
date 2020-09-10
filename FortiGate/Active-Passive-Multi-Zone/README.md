@@ -15,7 +15,12 @@ In AWS, you can deploy an active/passive pair of FortiGate VMs that communicate 
 These AWS CloudFormation templates can automatically deploy a full working environment or can integrate into your existing environment. These two behaviours are explicit in the names of the files (Ex: FGT_AP_HA_XAZ_<behaviour>_BYOL.template): 
 - "existingVPC" means the template will prompt you for some parameters to best integrate the solution 
 - "newVPC" means the template will create a new infrastructure to run the solution into. 
+
+- Licenses for Fortigate
+
 The templates can deploy devices in PAYG (on demand) or BYOL (you provide the licence) models. You can select the appropriate template using the extension in the names. Ex: FGT_AP_HA_XAZ_newVPC_<extension>.template
+  - BYOL: A demo license can be made available via your Fortinet partner or on our website. These can be injected during deployment or added after deployment. Purchased licenses need to be registered on the [Fortinet support site] (http://support.fortinet.com). Download the .lic file after registration. Note, these files may not work until 30 minutes after it's initial creation.
+  - PAYG or OnDemand: These licenses are automatically generated during the deployment of the FortiGate systems.
 
 
 The templates will deploy a solution containing the following components.
@@ -98,35 +103,41 @@ The AWS SDN is updated by FortiGate 2 initiating API calls from the dedicated HA
 
 # Requirements and limitations
 
-The ARM template deploy different resource and it is required to have the access rights and quota in your Microsoft Azure subscription to deploy the resources.
+Before attempting to create a stack with the templates, a few prerequisites should be checked to ensure a successful deployment:
 
-- The template will deploy Standard F4s VMs for this architecture. Other VM instances are supported as well with a minimum of 2 NICs. A list can be found [here](https://docs.fortinet.com/document/fortigate/6.2.0/azure-cookbook/562841/instance-type-support)
-- Licenses for Fortigate
-  - BYOL: A demo license can be made available via your Fortinet partner or on our website. These can be injected during deployment or added after deployment. Purchased licenses need to be registered on the [Fortinet support site] (http://support.fortinet.com). Download the .lic file after registration. Note, these files may not work until 30 minutes after it's initial creation.
-  - PAYG or OnDemand: These licenses are automatically generated during the deployment of the FortiGate systems.
+  1. An AMI subscription must be active for the FortiGate license type being used in the template.
 
-## Fabric Connector
+  * [BYOL Marketplace Listing](https://aws.amazon.com/marketplace/pp/B00ISG1GUG)
+  * [PAYG Marketplace Listing](https://aws.amazon.com/marketplace/pp/B00PCZSWDA)
 
-The FortiGate-VM uses [Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/) for the SDN Fabric Connector. A SDN Fabric Connector is created automatically during deployment. After deployment, it is required apply the 'Reader' role to Azure Subscription you want the FortiGate-VM(s) to resolve Azure Resources from. More information can be found on the [Fortinet Documentation Libary](https://docs.fortinet.com/vm/azure/fortigate/6.4/azure-cookbook/6.4.0/236610/creating-a-fabric-connector-using-a-managed-identity).
+  2. The solution requires 3 EIPs to be created so ensure the AWS region being used has available capacity. Reference AWS Documentation for more information on EC2 resource limits and how to request increases.
+  
+  3. If BYOL licensing is to be used, ensure these licenses have been registered on the support site. Reference the VM license registration process PDF in this KB Article.
+    
+  4. Create a new S3 bucket in the same region where the template will be deployed. If the bucket is in a different region than the template deployment, bootstrapping will fail and the FGTs will be unaccessible.
+    
+  5. If BYOL licensing is to be used, upload these licenses to the root directory of the same S3 bucket from the step above.
+  
+  6. Ensure that an S3 gateway endpoint is deployed and assigned to both of the PublicSubnet's AWS route table. 
+  * [Reference AWS Documentation] (https://docs.aws.amazon.com/vpc/latest/userguide/vpce-gateway.html#create-gateway-endpoint) for further information.
+    
+  7. Ensure that all of the PublicSubnet's and HAmgmtSubnet's AWS route tables have a default route to an AWS Internet Gateway. 
+  * [Reference AWS Documentation] (https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#route-tables-internet-gateway) for further information.
 
-# FortiGate configuration
+Once the prerequisites have been satisfied, login to your account in the AWS console and proceed with the deployment.
 
-The FortiGate VMs need a specific configuration to operate in your environment. This configuration can be injected during provisioning or afterwards via the different management options including GUI, CLI, FortiManager or REST API.
+# After deployment
 
-- [Default configuration using this template](doc/config-provisioning.md)
-- [Cloud-init](doc/config-cloud-init.md)
-- [Inbound connections](doc/config-inbound-connections.md)
-- [Outbound connections](doc/config-outbound-connections.md)
-  - [NAT considerations: 1-to-1 and 1-to-many](doc/config-outbound-nat-considerations.md)
-- East west connections
+1. login to Master unit:
+From the AWS console Services > EC2, click on the FortigateA instance and retrieve its public IP and its instance ID. You can now connect to its GUI using the default login "admin" and the default password "<instance ID>". You will be prompted to change the password which will be synchronized to both units.
 
-# Troubleshooting
+2. Give the HA cluster time to finish synchronizing their configuration and update files.  You can confirm that both the master and slave FortiGates are in sync by looking at the Synchronized column and confirming there is a green check next to both FortiGates. 
+*** **Note:** Due to browser caching issues, the icon for Synchronization status may not update properly after the cluster is in-sync.  So either close your browser and log back into the cluster or alternatively verify the HA config sync status with the CLI command ‘get system ha status’. ***
 
-You can find a troubleshooting guide for this setup [here](doc/troubleshooting.md)
 
 ## Support
 Fortinet-provided scripts in this and other GitHub projects do not fall under the regular Fortinet technical support scope and are not supported by FortiCare Support Services.
-For direct issues, please refer to the [Issues](https://github.com/fortinet/azure-templates/issues) tab of this GitHub project.
+For direct issues, please refer to the [Issues](https://github.com/fortinet/aws-cloudformation-templates/issues) tab of this GitHub project.
 For other questions related to this project, contact [github@fortinet.com](mailto:github@fortinet.com).
 
 ## License
