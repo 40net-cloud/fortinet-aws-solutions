@@ -21,7 +21,7 @@ The templates can deploy devices in PAYG (on demand) or BYOL (you provide the li
 The templates will deploy a solution containing the following components.
   - 2 FortiGate firewall's in an active/passive deployment
   - (with newVPC behaviour) 1 VPC with 4 protected subnets (1 private, 1 Public in 2 zones) and 4 subnets required for the FortiGate deployment (ha and management in 2 zones). If using an existing VPC, it must already have 8 subnets
-  - 3 public IPs. The first public IP is for cluster access to/through the active FortiGate.  The other two PIPs are for Management access which are also used for API calls.
+  - 3 public IPs. The first public IP is for cluster access to/through the active FortiGate.  The other two PIPs are for Management access (Management access is used to make API calls to modify the infrastructure).
 
 ![active/passive design](images/fgt-ha.png)
 
@@ -46,6 +46,31 @@ The solution is considered as cloud native because it already embedds all the ne
 FGCP HA provides AWS networks with enhanced reliability through device fail-over protection, link fail-over protection, and remote link fail-over protection. In addition, reliability is further enhanced with session fail-over protection for most IPv4 and IPv6 sessions including TCP, UDP, ICMP, IPsec\SSL VPN, and NAT sessions.
 A FortiGate FGCP cluster appears as a single logical FortiGate instance and configuration synchronization allows you to configure a cluster in the same way as a standalone FortiGate unit. If a fail-over occurs, the cluster recovers quickly and automatically and can also send notifications to administrator so that the problem that caused the failure can be corrected and any failed resources restored.
 
+The FortiGates are configured to use the unicast version of FGCP by applying the configuration below on both the master and slave FortiGate instances. This configuration is automatically configured and bootstrapped to the instances when deployed by the provided CloudFormation Templates.
+
+- Number of ports and associated roles :
+
+The FortiGate instances will use multiple interfaces for data plane and control plane traffic to achieve FGCP clustering in an AWS VPC. The FortiGate instances require four ENIs for this solution to work as designed so make sure to use an AWS EC2 instance type that supports this. Reference AWS Documentation for further information on this.
+
+For data plane functions the FortiGates will use two dedicated ENIs, one for a public interface (ie ENI0\port1) and another for a private interface (ie ENI1\port2). These ENIs will utilize primary IP addressing and FortiOS will not sync the interface configuration (config system interface) or static routes (config router static) as these FGTs are in separate subnets. Thus when configuring these items, you should do so individually on both FortiGates.
+
+A cluster EIP will be associated to the primary IP of the public interface (ie ENI0\port1) of the current master FortiGate instance and will be reassociated to a new master FortiGate instance as well.
+
+For control plane functions, the FortiGates will use a dedicated ENI (ie ENI2\port3) for FGCP HA communication to perform tasks such as heartbeat checks, configuration sync, and session sync. A dedicated ENI is used as this is best practice for FGCP as it ensures the FortiGate instances have ample bandwidth for all critical HA communications.
+
+The FortiGates will also use another dedicated ENI (ie ENI3\port4) for HA management access to each instance and also allow each instance to independently and directly communicate with the public AWS EC2 API. This dedicated interface is critical to failing over AWS SDN properly when a new FGCP HA master is elected and is the only method of access available to the current slave FortiGate instance.
+
+- how it works:
+
+The FortiGate instances will make calls to the public AWS EC2 API to update AWS SDN to failover both inbound and outbound traffic flows to the new master FortiGate instance. There are a few components that make this possible.
+
+FortiOS will assume IAM permissions to access the AWS EC2 API by using the IAM instance role attached to the FortiGate instances. The instance role is what grants the required permissions for FortiOS to:
+
+  - Reassign cluster EIPs assigned to primary IPs assigned to the data plane ENIs
+  - Update existing routes to target the new master instance ENIs
+
+The FortiGate instances will utilize their independent and direct internet access available through the FGCP HA management interface (ie ENI3\port4) to access the public AWS EC2 API. It is critical that this ENI is in a public subnet with an EIP assigned so that each instance has independent and direct access to the internet or the AWS SDN will not reference the current master FortiGate instance which will break data plane traffic.
+
 For further information on FGCP reference the High Availability chapter in the FortiOS Handbook on the Fortinet Documentation site.
 
 Note: Other Fortinet solutions for AWS such as FGCP HA (Single AZ), AutoScaling, and Transit Gateway are available. Please visit www.fortinet.com/aws for further information.
@@ -59,7 +84,17 @@ The FortiGate solution can be deployed using the AWS console in Services > Cloud
 ![cloudformation form3](images/form-3.png)
 ![cloudformation form4](images/form-4.png)
 
+# Failover process
 
+The following network diagram will be used to illustrate a failover event from the current master FortiGate (FortiGate A), to the current slave FortiGate (FortiGate B).
+
+Inbound failover is provided by reassigning the EIPs associated to the primary IP address of ENI0\port1 from FortiGate A's public interface to FortiGate B's public interface.
+
+Outbound failover is provided updating any route targets referencing FortiGate A’s private interface reference FortiGate B’s private interface.
+
+The AWS SDN is updated by FortiGate 2 initiating API calls from the dedicated HA management interface (ie ENI3\port4) through the AWS Internet Gateway.
+
+![failover design](images/failover.png)
 
 # Requirements and limitations
 
