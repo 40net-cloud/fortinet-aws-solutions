@@ -16,7 +16,7 @@ These AWS CloudFormation templates can automatically deploy a full working envir
 - "existingVPC" means the template will prompt you for some parameters to best integrate the solution 
 - "newVPC" means the template will create a new infrastructure to run the solution into. 
 
-- Licenses for Fortigate
+Licenses for Fortigate:
 
 The templates can deploy devices in PAYG (on demand) or BYOL (you provide the licence) models. You can select the appropriate template using the extension in the names. Ex: FGT_AP_HA_XAZ_newVPC_<extension>.template
   - BYOL: A demo license can be made available via your Fortinet partner or on our website. These can be injected during deployment or added after deployment. Purchased licenses need to be registered on the [Fortinet support site] (http://support.fortinet.com). Download the .lic file after registration. Note, these files may not work until 30 minutes after it's initial creation.
