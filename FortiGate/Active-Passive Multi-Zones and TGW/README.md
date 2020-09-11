@@ -45,6 +45,11 @@ South->North / North->South: The first 4 steps are very similair to east-west tr
 
 ## How to deploy
 
+The templates can deploy devices in PAYG (on demand) or BYOL (you provide the licence) models. You can select the appropriate template using the extension in the names. Ex: FGT_AP_HA_XAZ_newVPC_<extension>.template
+  - BYOL: A demo license can be made available via your Fortinet partner or on our website. These can be injected during deployment or added after deployment. Purchased licenses need to be registered on the [Fortinet support site] (http://support.fortinet.com). Download the .lic file after registration. Note, these files may not work until 30 minutes after it's initial creation.
+  - PAYG or OnDemand: These licenses are automatically generated during the deployment of the FortiGate systems.
+
+
 The templates will deploy a solution containing the following components.
   - A Transit Gateway with 3 routing tables (associated to the VPC, associated to one management VPC, associated to the security VPC), all attachements and associations with the VPCs.
   - 2 FortiGate firewall's in an active/passive deployment
@@ -64,82 +69,20 @@ The FortiGate solution can be deployed using the AWS console in Services > Cloud
 ![cloudformation form5](images/form-5.png)
 ![cloudformation form6](images/form-6.png)
 
+# Failover process
 
+The slave member located in the security VPC is constantly monitoring the health of the master over the heartbeat link. As soon as it detects a failure, it automatically triggers an API call to the infrastructure to change the routes entries in the routing table of the attachement subnet (relay subnet) pointing to the new master (Ex-slave). 
 
+# After deployment
 
+1. login to Master unit:
+From the AWS console Services > EC2, click on the FortigateA instance and retrieve its public IP and its instance ID. You can now connect to its GUI using the default login "admin" and the default password "<instance ID>". You will be prompted to change the password which will be synchronized to both units.
 
+2. Give the HA cluster time to finish synchronizing their configuration and update files.  You can confirm that both the master and slave FortiGates are in sync by looking at the Synchronized column and confirming there is a green check next to both FortiGates. 
+*** **Note:** Due to browser caching issues, the icon for Synchronization status may not update properly after the cluster is in-sync.  So either close your browser and log back into the cluster or alternatively verify the HA config sync status with the CLI command ‘get system ha status’. ***
 
-
-
-
-
-## Requirements
-* [Terraform](https://learn.hashicorp.com/terraform/getting-started/install.html) >= 0.12.0
-* Terraform Provider AWS 2.59.0
-* Terraform Provider Template 2.1.2
-
-## Deployment Overview
-A Transit Gateway relies on Route Tables. By default, a new Route Table is created in the Transit Gateway, which populates with the routing info toward every VPC attached to the gateway (the full mesh scenario)
-The Terraform code in this project demonstrates a more complex scenario in which traffic is isolated based on the environment.
-
-* VPC-1(10.1.0.0/16): in the 'dev' environment - Spoke1 VPC - 2 subnets
-* VPC-2(10.2.0.0/16): in the 'dev' environment - Spoke2 VPC - 2 subnets
-* VPC-3(10.3.0.0/16): in the 'shared' environment - Mgmt VPC - 2 subnets
-* VPC-4(10.0.0.0/16): in the 'prod' environment - Prod VPC - 8 subnets
-
-Let's assume the 'shared' environment will host shared components, such as proxy services, tools, ... Here are the rules we want our Transit Gateway to implement:
-* The shared VPC can access dev and prod VPCs.
-* The dev VPCs can access each other, and the shared VPC
-* The prod VPCs can only access the shared VPC
-
-To enable such a scenario, three Transit Gateway Route Tables are created.  One Route Table per environment.
-
-* RouteTable-1 : associated with all subnets in both Spoke1 and Spoke2 VPC.
-- RouteTable-2 : associated with all subnets in Mmgmt VPC.
-- RouteTable-3 : associated with relay subnets in Prod PC.
-
-* Spoke1/Spoke2/Mgmt VPC each gets a t2.micro Ubuntu instance to validate the network connectivity over ssh and ICMP (ping).
-* The instance in the 'shared' is assigned with a public IP in order to have easy access to the Environment.
-
-![transit-gateway-architecture](./output/transit-gateway.png?raw=true "Transit Gateway Architecture")
-
-## Deployment
-* Clone the repository.
-* Change ACCESS_KEY and SECRET_KEY values in terraform.tfvars.
-* Change parameters in the variables.tf.
-* Initialize the providers and modules:
-  ```sh
-  $ terraform init
-  ```
-* Submit the Terraform plan:
-  ```sh
-  $ terraform plan
-  ```
-* Verify output.
-* Confirm and apply the plan:
-  ```sh
-  $ terraform apply
-  ```
-* If output is satisfactory, type `yes`.
-
-Output will include the information necessary to log in to the FortiGate-VM instances:
-```sh
-Outputs:
-
-FGT_Active_MGMT_Public_IP = <Active FGT Management Public IP>
-FGT_Cluster_Public_IP = <Cluster Public IP>
-FGT_Passive_MGMT_Public_IP = <Passive FGT Management Public IP>
-FGT_Password = <FGT Password>
-FGT_Username = <FGT admin>
-TransitGwy_ID = <Transit Gwy ID>
-
-```
-
-## Destroy the instance
-To destroy the instance, use the command:
-```sh
-$ terraform destroy
-```
+3. You can connect to the bastion/management device located in the management VPC using ssh and your ssh key:
+#ssh -i <path to your private key> ec2-user@<ip of the management device>
 
 # Support
 Fortinet-provided scripts in this and other GitHub projects do not fall under the regular Fortinet technical support scope and are not supported by FortiCare Support Services.

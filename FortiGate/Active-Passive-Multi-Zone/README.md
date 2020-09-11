@@ -65,7 +65,7 @@ For control plane functions, the FortiGates will use a dedicated ENI (ie ENI2\po
 
 The FortiGates will also use another dedicated ENI (ie ENI3\port4) for HA management access to each instance and also allow each instance to independently and directly communicate with the public AWS EC2 API. This dedicated interface is critical to failing over AWS SDN properly when a new FGCP HA master is elected and is the only method of access available to the current slave FortiGate instance.
 
-- how it works:
+# How it works:
 
 The FortiGate instances will make calls to the public AWS EC2 API to update AWS SDN to failover both inbound and outbound traffic flows to the new master FortiGate instance. There are a few components that make this possible.
 
@@ -97,7 +97,7 @@ Inbound failover is provided by reassigning the EIPs associated to the primary I
 
 Outbound failover is provided updating any route targets referencing FortiGate A’s private interface reference FortiGate B’s private interface.
 
-The AWS SDN is updated by FortiGate 2 initiating API calls from the dedicated HA management interface (ie ENI3\port4) through the AWS Internet Gateway.
+The AWS SDN is updated by FortiGate B initiating API calls from the dedicated HA management interface (ie ENI3\port4) through the AWS Internet Gateway.
 
 ![failover design](images/failover.png)
 
