@@ -76,13 +76,13 @@ The slave member located in the security VPC is constantly monitoring the health
 # After deployment
 
 1. login to Master unit:
-From the AWS console Services > EC2, click on the FortigateA instance and retrieve its public IP and its instance ID. You can now connect to its GUI using the default login "admin" and the default password "<instance ID>". You will be prompted to change the password which will be synchronized to both units.
+From the AWS console Services > EC2, click on the FortigateA instance and retrieve its public IP and its instance ID. You can now connect to its GUI using the default login "admin" and the default password < instance ID >. You will be prompted to change the password which will be synchronized to both units.
 
 2. Give the HA cluster time to finish synchronizing their configuration and update files.  You can confirm that both the master and slave FortiGates are in sync by looking at the Synchronized column and confirming there is a green check next to both FortiGates. 
 *** **Note:** Due to browser caching issues, the icon for Synchronization status may not update properly after the cluster is in-sync.  So either close your browser and log back into the cluster or alternatively verify the HA config sync status with the CLI command ‘get system ha status’. ***
 
 3. You can connect to the bastion/management device located in the management VPC using ssh and your ssh key:
-#ssh -i <path to your private key> ec2-user@<ip of the management device>
+    ssh -i < path to your private key > ec2-user@< ip of the management device >
 
 # Support
 Fortinet-provided scripts in this and other GitHub projects do not fall under the regular Fortinet technical support scope and are not supported by FortiCare Support Services.
