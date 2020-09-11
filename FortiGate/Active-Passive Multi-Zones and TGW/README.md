@@ -61,6 +61,8 @@ The FortiGate solution can be deployed using the AWS console in Services > Cloud
 ![cloudformation form2](images/form-2.png)
 ![cloudformation form3](images/form-3.png)
 ![cloudformation form4](images/form-4.png)
+![cloudformation form5](images/form-5.png)
+![cloudformation form6](images/form-6.png)
 
 
 
