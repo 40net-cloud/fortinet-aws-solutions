@@ -1,1 +1,0 @@
-# fortinet-aws-solutions

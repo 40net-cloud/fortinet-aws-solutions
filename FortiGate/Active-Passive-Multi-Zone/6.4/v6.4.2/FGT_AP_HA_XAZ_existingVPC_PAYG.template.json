@@ -1,6 +1,6 @@
 {
 	"AWSTemplateFormatVersion": "2010-09-09",
-	"Description": "Create a VPC then launch two FortiGates in A-P cluster running in a dual AZs",
+	"Description": "Launch two FortiGates within your VPC in A-P cluster running in a dual AZ",
 	"Metadata": {
 		"AWS::CloudFormation::Interface": {
 			"ParameterGroups": [
@@ -9,7 +9,8 @@
 						"default": "VPC Configuration"
 					},
 					"Parameters": [
-						"VPCCIDR",
+                        "VPCID",
+                        "VPCCIDR",
 						"PublicSubnet1",
 						"PublicSubnet1RouterIP",
 						"PrivateSubnet1",
@@ -44,18 +45,27 @@
 						"default": "FortiGate IP Configuration"
 					},
 					"Parameters": [
-						"FortiGateAHeartbeatIP",
-						"FortiGateBHeartbeatIP"
+						"IPAPublicSubnet1",
+						"IPAPrivateSubnet1",
+						"IPAHeartBeatSubnet1",
+						"IPAMgmtSubnet1",
+						"IPBPublicSubnet2",
+						"IPBPrivateSubnet2",
+						"IPBHeartBeatSubnet2",
+						"IPBMgmtSubnet2"
 					]
 				}
 			]
 		}
 	},
 	"Parameters": {
+		"VPCID": {
+			"Type": "AWS::EC2::VPC::Id",
+			"Description": "Enter the VPC CIDR that you are using"
+		},
 		"VPCCIDR": {
 			"Type": "String",
-			"Default": "10.0.0.0/16",
-			"Description": "Enter the VPC CIDR that you are using"
+			"Description": "Enter the VPC CIDR of the above VPC. Ex: 10.0.0.0/16"
 		},
 		"AZForFGTA": {
 			"Type": "AWS::EC2::AvailabilityZone::Name",
@@ -66,70 +76,86 @@
 			"Description": "Select the second AZ for FortiGateB"
 		},
 		"PublicSubnet1": {
+			"Type": "AWS::EC2::Subnet::Id",
+			"Description": "Select the Public1 subnet"
+		},
+		"IPAPublicSubnet1": {
 			"Type": "String",
-			"Default": "10.0.1.0/24",
-			"Description": "Provide a network CIDR for the Public Subnet1"
-        },
+			"Description": "Indicate the IP of the interface of FGTA attached to public subnet1. Ex: 10.0.1.12/24"
+		},
         "PublicSubnet1RouterIP": {
 			"Type": "String",
 			"Default": "10.0.1.1",
 			"Description": "Provide the IP of the gateway for the public subnet1"
 		},
 		"PrivateSubnet1": {
+			"Type": "AWS::EC2::Subnet::Id",
+			"Description": "Select the private subnet1"
+		},
+		"IPAPrivateSubnet1": {
 			"Type": "String",
-			"Default": "10.0.2.0/24",
-			"Description": "Provide a network CIDR for the private subnet1"
-        },
+			"Description": "Indicate the IP of the interface of FGTA attached to private subnet1. Ex: 10.0.2.12/24"
+		},
         "PrivateSubnet1RouterIP": {
 			"Type": "String",
 			"Default": "10.0.2.1",
 			"Description": "Provide the IP of the gateway for the private subnet1"
 		},
 		"HeartbeatSubnet1": {
-			"Type": "String",
-			"Default": "10.0.3.0/24",
-			"Description": "Provide a network CIDR for the heartbeat subnet1"
+			"Type": "AWS::EC2::Subnet::Id",
+			"Description": "Select the heartbeat subnet1"
 		},
 		"MgmtSubnet1": {
+			"Type": "AWS::EC2::Subnet::Id",
+			"Description": "Select the management subnet1"
+		},
+		"IPAMgmtSubnet1": {
 			"Type": "String",
-			"Default": "10.0.4.0/24",
-			"Description": "Provide a network CIDR for the management subnet1"
-        },
+			"Description": "Indicate the IP of the interface of FGTA attached to management subnet1.  Ex: 10.0.4.12/24"
+		},
         "MgmtSubnet1RouterIP": {
 			"Type": "String",
 			"Default": "10.0.4.1",
 			"Description": "Provide the IP of the gateway for the management subnet1"
 		},
 		"PublicSubnet2": {
+			"Type": "AWS::EC2::Subnet::Id",
+			"Description": "Select the public subnet2"
+		},
+		"IPBPublicSubnet2": {
 			"Type": "String",
-			"Default": "10.0.10.0/24",
-			"Description": "Provide a network CIDR for the public subnet2"
-        },
+			"Description": "Indicate the IP of the interface of FGTB attached to public subnet2. Ex: 10.0.10.12/24"
+		},
         "PublicSubnet2RouterIP": {
 			"Type": "String",
             "Default": "10.0.10.1",
             "Description": "Provide the IP of the gateway for the public subnet2"
-        },
+		},
 		"PrivateSubnet2": {
+			"Type": "AWS::EC2::Subnet::Id",
+			"Description": "Select the private subnet2"
+		},
+		"IPBPrivateSubnet2": {
 			"Type": "String",
-			"Default": "10.0.20.0/24",
-			"Description": "Provide a network CIDR for the private subnet2"
-        },
+			"Description": "Indicate the IP of the interface of FGTB attached to private subnet2. Ex: 10.0.20.12/24"
+		},
         "PrivateSubnet2RouterIP": {
 			"Type": "String",
 			"Default": "10.0.20.1",
 			"Description": "Provide the IP of the gateway for the private subnet2"
 		},
 		"HeartbeatSubnet2": {
-			"Type": "String",
-			"Default": "10.0.30.0/24",
-			"Description": "Provide a network CIDR for the heartbeat subnet2"
+			"Type": "AWS::EC2::Subnet::Id",
+			"Description": "Select the heartbeat subnet2"
 		},
 		"MgmtSubnet2": {
+			"Type": "AWS::EC2::Subnet::Id",
+			"Description": "Select the management subnet2"
+		},
+		"IPBMgmtSubnet2": {
 			"Type": "String",
-			"Default": "10.0.40.0/24",
-			"Description": "Provide a network CIDR for the management subnet2"
-        },
+			"Description": "Indicate the IP of the interface of FGTB attached to management subnet2. Ex: 10.0.40.12/24"
+		},
         "MgmtSubnet2RouterIP": {
 			"Type": "String",
 			"Default": "10.0.40.1",
@@ -161,101 +187,78 @@
 			"Type": "String",
 			"Description": "Secret for HA peer identification"
 		},
-		"FortiGateAHeartbeatIP": {
+		"IPAHeartBeatSubnet1": {
 			"Type": "String",
-			"Default": "10.0.3.10/24",
-			"Description": "Enter the IP address in CIDR form for the heartbeat interface of FortiGateA (IP from heartbeat Subnet1)"
+			"Description": "Enter the IP address in CIDR form for the heartbeat interface of FortiGateA (IP from heartbeat Subnet1). Ex: 10.0.3.10/24"
 		},
-		"FortiGateBHeartbeatIP": {
+		"IPBHeartBeatSubnet2": {
 			"Type": "String",
-			"Default": "10.0.30.10/24",
-			"Description": "Enter the IP address in CIDR form for the heartbeat interface of FortiGateB (IP from heartbeat Subnet2)"
+			"Description": "Enter the IP address in CIDR form for the heartbeat interface of FortiGateB (IP from heartbeat Subnet2). Ex: 10.0.30.10/24"
 		}
 	},
 	"Mappings": {
 		"RegionMap": {
+			"af-south-1": {
+                "fgtami": "ami-0439be1074ef81a10"
+            },
 			"eu-north-1": {
-                "fgtami": "ami-014dde07dffde2c0f"
+                "fgtami": "ami-03cb609d3790d97a0"
             },
             "ap-south-1": {
-                "fgtami": "ami-07a7a8bc7b8280414"
+                "fgtami": "ami-0cdc691025c98c34c"
             },
             "eu-west-3": {
-                "fgtami": "ami-0b47346da759bd67e"
+                "fgtami": "ami-0657dfa166eab43f3"
             },
             "eu-west-2": {
-                "fgtami": "ami-0e65eb4dd45ee4258"
+                "fgtami": "ami-0f8e0a1e8a4239f07"
             },
             "eu-west-1": {
-                "fgtami": "ami-0d78759a784f8085d"
+                "fgtami": "ami-04d2af58b72ff5293"
             },
             "ap-northeast-2": {
-                "fgtami": "ami-0d714b0e360fbc378"
+                "fgtami": "ami-00d77eb74c66fb356"
             },
             "ap-northeast-1": {
-                "fgtami": "ami-06e83b5511ad5c7f1"
+                "fgtami": "ami-012323c6ee2d10939"
             },
             "sa-east-1": {
-                "fgtami": "ami-03bf81fbb4967011c"
+                "fgtami": "ami-0bc801f13e61a333d"
             },
             "ca-central-1": {
-                "fgtami": "ami-09ea7263a6246dd3d"
+                "fgtami": "ami-0af16a22b71764ca5"
             },
             "ap-southeast-1": {
-                "fgtami": "ami-06bbcc3ed16453638"
+                "fgtami": "ami-0796bf2adb764b2a9"
             },
             "ap-southeast-2": {
-                "fgtami": "ami-0468c6395d63fdd96"
-            },
-            "eu-central-1": {
-                "fgtami": "ami-0cd63578d8a6fc4cd"
-            },
-            "us-east-1": {
-                "fgtami": "ami-016ac6c1a802f99a1"
-            },
-            "us-east-2": {
-                "fgtami": "ami-0470a65a67f774b54"
-            },
-            "us-west-1": {
-                "fgtami": "ami-075a3a13e2b2fc908"
-            },
-            "us-west-2": {
-                "fgtami": "ami-02cbcc029e8550e2f"
-			},
-			"me-south-1":{
-				"fgtami":"ami-0b0432582909ba94a"
+                "fgtami": "ami-0080eebbc256a695c"
 			},
 			"ap-east-1":{
-				"fgtami":"ami-0d82609784db73afd"
+				"fgtami":"ami-09722e9bb4cc35027"
+			},
+            "eu-central-1": {
+                "fgtami": "ami-04e0fd86abd8d2109"
+            },
+            "us-east-1": {
+                "fgtami": "ami-0164e2a945bf351e1"
+            },
+            "us-east-2": {
+                "fgtami": "ami-0c2f03fff3cc0cc92"
+            },
+            "us-west-1": {
+                "fgtami": "ami-039efced40216d10f"
+            },
+            "us-west-2": {
+                "fgtami": "ami-03ee081dace39500a"
+			},
+			"me-south-1":{
+				"fgtami":"ami-0bef354a4f9e6ab7e"
 			}
 		}
 	},
 	"Conditions": {},
 	"Resources": {
-		"VPCID": {
-			"Properties": {
-				"CidrBlock": {
-					"Ref": "VPCCIDR"
-				},
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"VPCID"
-								]
-							]
-						}
-					}
-				]
-			},
-			"Type": "AWS::EC2::VPC"
-		},
 		"InstanceRole": {
 			"Type": "AWS::IAM::Role",
 			"Properties": {
@@ -310,339 +313,6 @@
 					}
 				]
 			}
-		},
-		"PrivateSubnetA": {
-			"Properties": {
-				"AvailabilityZone": {
-					"Ref": "AZForFGTA"
-				},
-				"CidrBlock": {
-					"Ref": "PrivateSubnet1"
-				},
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"PrivateSubnet1"
-								]
-							]
-						}
-					}
-				],
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::Subnet"
-		},
-		"PublicSubnetA": {
-			"Properties": {
-				"AvailabilityZone": {
-					"Ref": "AZForFGTA"
-				},
-				"CidrBlock": {
-					"Ref": "PublicSubnet1"
-				},
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"PublicSubnet1"
-								]
-							]
-						}
-					}
-				],
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::Subnet"
-		},
-		"HeartbeatSubnetA": {
-			"Properties": {
-				"AvailabilityZone": {
-					"Ref": "AZForFGTA"
-				},
-				"CidrBlock": {
-					"Ref": "HeartbeatSubnet1"
-				},
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"HeartbeatSubnet1"
-								]
-							]
-						}
-					}
-				],
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::Subnet"
-		},
-		"MgmtSubnetA": {
-			"Properties": {
-				"AvailabilityZone": {
-					"Ref": "AZForFGTA"
-				},
-				"CidrBlock": {
-					"Ref": "MgmtSubnet1"
-				},
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"MgmtSubnet1"
-								]
-							]
-						}
-					}
-				],
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::Subnet"
-		},
-		"PrivateSubnetB": {
-			"Properties": {
-				"AvailabilityZone": {
-					"Ref": "AZForFGTB"
-				},
-				"CidrBlock": {
-					"Ref": "PrivateSubnet2"
-				},
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"PrivateSubnet2"
-								]
-							]
-						}
-					}
-				],
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::Subnet"
-		},
-		"PublicSubnetB": {
-			"Properties": {
-				"AvailabilityZone": {
-					"Ref": "AZForFGTB"
-				},
-				"CidrBlock": {
-					"Ref": "PublicSubnet2"
-				},
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"PublicSubnet2"
-								]
-							]
-						}
-					}
-				],
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::Subnet"
-		},
-		"HeartbeatSubnetB": {
-			"Properties": {
-				"AvailabilityZone": {
-					"Ref": "AZForFGTB"
-				},
-				"CidrBlock": {
-					"Ref": "HeartbeatSubnet2"
-				},
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"HeartbeatSubnet2"
-								]
-							]
-						}
-					}
-				],
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::Subnet"
-		},
-		"MgmtSubnetB": {
-			"Properties": {
-				"AvailabilityZone": {
-					"Ref": "AZForFGTB"
-				},
-				"CidrBlock": {
-					"Ref": "MgmtSubnet2"
-				},
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"MgmtSubnet2"
-								]
-							]
-						}
-					}
-				],
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::Subnet"
-		},
-		"AttachGateway": {
-			"Properties": {
-				"InternetGatewayId": {
-					"Ref": "InternetGateway"
-				},
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::VPCGatewayAttachment"
-		},
-		"InternetGateway": {
-			"Properties": {
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"IGW"
-								]
-							]
-						}
-					}
-				]
-			},
-			"Type": "AWS::EC2::InternetGateway"
-		},
-		"PublicDefaultRoute": {
-			"DependsOn": "AttachGateway",
-			"Properties": {
-				"DestinationCidrBlock": "0.0.0.0/0",
-				"GatewayId": {
-					"Ref": "InternetGateway"
-				},
-				"RouteTableId": {
-					"Ref": "RouteTable"
-				}
-			},
-			"Type": "AWS::EC2::Route"
-		},
-		"RouteTable": {
-			"Properties": {
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"PublicRoute"
-								]
-							]
-						}
-					}
-				],
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::RouteTable"
-		},
-		"HeartbeatRouteTable": {
-			"Properties": {
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"HeartbeatRoute"
-								]
-							]
-						}
-					}
-				],
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			},
-			"Type": "AWS::EC2::RouteTable"
 		},
 		"FGTSecGrpBase": {
 			"Type": "AWS::EC2::SecurityGroup",
@@ -761,22 +431,22 @@
 							"edit 0",
 							"set object system.interface",
 							"end",
-							"config system global",
+                            "config system global",
                             "set hostname FGTA",
                             "end",
                             "config system interface",
                             "edit port1",
                             "set alias public",
-                            "set mode static",
-                            { "Fn::Join" : [ "", [ "set ip ",{"Fn::GetAtt": ["FGTAENI0","PrimaryPrivateIpAddress"]},"/",{"Fn::Select" : [ "1", { "Fn::Split": ["/", {"Ref": "PublicSubnet1"}]}]}]]},
+							"set mode static",
+							{ "Fn::Join" : [ "", [ "set ip ",{"Ref":"IPAPublicSubnet1"}]]},
                             "set allowaccess ping https ssh",
                             "set mtu-override enable",
                             "set mtu 9001",
                             "next",
                             "edit port2",
                             "set alias private",
-                            "set mode static",
-                            { "Fn::Join" : [ "", [ "set ip ",{"Fn::GetAtt": ["FGTAENI1","PrimaryPrivateIpAddress"]},"/",{"Fn::Select" : [ "1", { "Fn::Split": ["/", {"Ref": "PrivateSubnet1"}]}]}]]},
+							"set mode static",
+							{ "Fn::Join" : [ "", [ "set ip ",{"Ref":"IPAPrivateSubnet1"}]]},
                             "set allowaccess ping https ssh",
                             "set mtu-override enable",
                             "set mtu 9001",
@@ -784,20 +454,20 @@
                             "edit port3",
                             "set alias hasync",
                             "set mode static",
-                            { "Fn::Join" : [ "", [ "set ip ",{"Ref":"FortiGateAHeartbeatIP"}]]},
+                            { "Fn::Join" : [ "", [ "set ip ",{"Ref":"IPAHeartBeatSubnet1"}]]},
                             "set allowaccess ping",
                             "set mtu-override enable",
                             "set mtu 9001",
                             "next",
                             "edit port4",
                             "set alias hamgmt",
-                            "set mode static",
-                            { "Fn::Join" : [ "", [ "set ip ",{"Fn::GetAtt": ["FGTAENI3","PrimaryPrivateIpAddress"]},"/",{"Fn::Select" : [ "1", { "Fn::Split": ["/", {"Ref": "MgmtSubnet1"}]}]}]]},
+							"set mode static",
+							{ "Fn::Join" : [ "", [ "set ip ",{"Ref":"IPAMgmtSubnet1"}]]},
                             "set allowaccess ping https ssh",
                             "set mtu-override enable",
                             "set mtu 9001",
                             "next",
-							"end",
+                            "end",
                             "config router static",
                             "edit 1",
                             "set device port1",
@@ -840,7 +510,7 @@
                             "set override disable",
                             "set priority 255",
                             "set unicast-hb enable",
-                            { "Fn::Join" : [ "", [ "set unicast-hb-peerip ",{"Fn::Select" : [ "0", { "Fn::Split": ["/", {"Ref": "FortiGateBHeartbeatIP"}]}]}]]},
+                            { "Fn::Join" : [ "", [ "set unicast-hb-peerip ",{"Fn::Select" : [ "0", { "Fn::Split": ["/", {"Ref": "IPBHeartBeatSubnet2"}]}]}]]},
                             "end"
 							]
 						]
@@ -914,29 +584,22 @@
 				"UserData": {
 					"Fn::Base64": {
 						"Fn::Join": ["\n", [
-							"config system vdom-exception",
-							"edit 0",
-							"set object router.static",
-							"next",
-							"edit 0",
-							"set object system.interface",
-							"end",
-							"config system global",
+                            "config system global",
                             "set hostname FGTB",
                             "end",
                             "config system interface",
                             "edit port1",
                             "set alias public",
-                            "set mode static",
-                            { "Fn::Join" : [ "", [ "set ip ",{"Fn::GetAtt": ["FGTBENI0","PrimaryPrivateIpAddress"]},"/",{"Fn::Select" : [ "1", { "Fn::Split": ["/", {"Ref": "PublicSubnet2"}]}]}]]},
+							"set mode static",
+							{ "Fn::Join" : [ "", [ "set ip ",{"Ref":"IPBPublicSubnet2"}]]},
                             "set allowaccess ping https ssh",
                             "set mtu-override enable",
                             "set mtu 9001",
                             "next",
                             "edit port2",
                             "set alias private",
-                            "set mode static",
-                            { "Fn::Join" : [ "", [ "set ip ",{"Fn::GetAtt": ["FGTBENI1","PrimaryPrivateIpAddress"]},"/",{"Fn::Select" : [ "1", { "Fn::Split": ["/", {"Ref": "PrivateSubnet2"}]}]}]]},
+							"set mode static",
+							{ "Fn::Join" : [ "", [ "set ip ",{"Ref":"IPBPrivateSubnet2"}]]},
                             "set allowaccess ping https ssh",
                             "set mtu-override enable",
                             "set mtu 9001",
@@ -944,20 +607,20 @@
                             "edit port3",
                             "set alias hasync",
                             "set mode static",
-                            { "Fn::Join" : [ "", [ "set ip ",{"Ref":"FortiGateBHeartbeatIP"}]]},
+                            { "Fn::Join" : [ "", [ "set ip ",{"Ref":"IPBHeartBeatSubnet2"}]]},
                             "set allowaccess ping",
                             "set mtu-override enable",
                             "set mtu 9001",
                             "next",
                             "edit port4",
                             "set alias hamgmt",
-                            "set mode static",
-                            { "Fn::Join" : [ "", [ "set ip ",{"Fn::GetAtt": ["FGTBENI3","PrimaryPrivateIpAddress"]},"/",{"Fn::Select" : [ "1", { "Fn::Split": ["/", {"Ref": "MgmtSubnet2"}]}]}]]},
+							"set mode static",
+							{ "Fn::Join" : [ "", [ "set ip ",{"Ref":"IPBMgmtSubnet2"}]]},
                             "set allowaccess ping https ssh",
                             "set mtu-override enable",
                             "set mtu 9001",
                             "next",
-							"end",
+                            "end",
                             "config router static",
                             "edit 1",
                             "set device port1",
@@ -1000,10 +663,10 @@
                             "set override disable",
                             "set priority 100",
                             "set unicast-hb enable",
-                            { "Fn::Join" : [ "", [ "set unicast-hb-peerip ",{"Fn::Select" : [ "0", { "Fn::Split": ["/", {"Ref": "FortiGateAHeartbeatIP"}]}]}]]},
+                            { "Fn::Join" : [ "", [ "set unicast-hb-peerip ",{"Fn::Select" : [ "0", { "Fn::Split": ["/", {"Ref": "IPAHeartBeatSubnet1"}]}]}]]},
                             "end"
-							]
-						]
+                            ]
+                        ]
 					}
 				}
 			}
@@ -1019,7 +682,10 @@
 				],
 				"SourceDestCheck": false,
 				"SubnetId": {
-					"Ref": "PublicSubnetA"
+					"Ref": "PublicSubnet1"
+				},
+				"PrivateIpAddress": {
+					"Fn::Select" : [ "0", { "Fn::Split": ["/", {"Ref": "IPAPublicSubnet1"}]}]
 				},
 				"Tags": [
 					{
@@ -1054,7 +720,10 @@
 				],
 				"SourceDestCheck": false,
 				"SubnetId": {
-					"Ref": "PublicSubnetB"
+					"Ref": "PublicSubnet2"
+				},
+				"PrivateIpAddress": {
+					"Fn::Select" : [ "0", { "Fn::Split": ["/", {"Ref": "IPBPublicSubnet2"}]}]
 				},
 				"Tags": [
 					{
@@ -1089,7 +758,10 @@
 				],
 				"SourceDestCheck": false,
 				"SubnetId": {
-					"Ref": "PrivateSubnetA"
+					"Ref": "PrivateSubnet1"
+				},
+				"PrivateIpAddress": {
+					"Fn::Select" : [ "0", { "Fn::Split": ["/", {"Ref": "IPAPrivateSubnet1"}]}]
 				},
 				"Tags": [
 					{
@@ -1120,7 +792,10 @@
 				],
 				"SourceDestCheck": false,
 				"SubnetId": {
-					"Ref": "PrivateSubnetB"
+					"Ref": "PrivateSubnet2"
+				},
+				"PrivateIpAddress": {
+					"Fn::Select" : [ "0", { "Fn::Split": ["/", {"Ref": "IPBPrivateSubnet2"}]}]
 				},
 				"Tags": [
 					{
@@ -1151,7 +826,7 @@
 				],
 				"SourceDestCheck": false,
 				"SubnetId": {
-					"Ref": "HeartbeatSubnetA"
+					"Ref": "HeartbeatSubnet1"
 				},
 				"PrivateIpAddresses": [
 					{
@@ -1162,7 +837,7 @@
 									"Fn::Split": [
 										"/",
 										{
-											"Ref": "FortiGateAHeartbeatIP"
+											"Ref": "IPAHeartBeatSubnet1"
 										}
 									]
 								}
@@ -1200,7 +875,7 @@
 				],
 				"SourceDestCheck": false,
 				"SubnetId": {
-					"Ref": "HeartbeatSubnetB"
+					"Ref": "HeartbeatSubnet2"
 				},
 				"PrivateIpAddresses": [
 					{
@@ -1211,7 +886,7 @@
 									"Fn::Split": [
 										"/",
 										{
-											"Ref": "FortiGateBHeartbeatIP"
+											"Ref": "IPBHeartBeatSubnet2"
 										}
 									]
 								}
@@ -1249,7 +924,10 @@
 				],
 				"SourceDestCheck": false,
 				"SubnetId": {
-					"Ref": "MgmtSubnetA"
+					"Ref": "MgmtSubnet1"
+				},
+				"PrivateIpAddress": {
+					"Fn::Select" : [ "0", { "Fn::Split": ["/", {"Ref": "IPAMgmtSubnet1"}]}]
 				},
 				"Tags": [
 					{
@@ -1280,7 +958,10 @@
 				],
 				"SourceDestCheck": false,
 				"SubnetId": {
-					"Ref": "MgmtSubnetB"
+					"Ref": "MgmtSubnet2"
+				},
+				"PrivateIpAddress": {
+					"Fn::Select" : [ "0", { "Fn::Split": ["/", {"Ref": "IPBMgmtSubnet2"}]}]
 				},
 				"Tags": [
 					{
@@ -1362,170 +1043,6 @@
 					"Ref": "FGTBENI3"
 				}
 			}
-		},
-		"PrivateRouteTable": {
-			"Type": "AWS::EC2::RouteTable",
-			"Properties": {
-				"VpcId": {
-					"Ref": "VPCID"
-				},
-				"Tags": [
-					{
-						"Key": "Name",
-						"Value": {
-							"Fn::Join": [
-								"",
-								[
-									{
-										"Ref": "AWS::StackName"
-									},
-									"-PrivateRouteTable"
-								]
-							]
-						}
-					}
-				]
-			}
-		},
-		"DefaultRoute": {
-			"Type": "AWS::EC2::Route",
-			"Properties": {
-				"RouteTableId": {
-					"Ref": "PrivateRouteTable"
-				},
-				"DestinationCidrBlock": "0.0.0.0/0",
-				"NetworkInterfaceId": {
-					"Ref": "FGTAENI1"
-				}
-			}
-		},
-		"HeartbeatAZ1RouteTableAssociation": {
-			"Type": "AWS::EC2::SubnetRouteTableAssociation",
-			"Properties": {
-				"SubnetId": {
-					"Ref": "HeartbeatSubnetA"
-				},
-				"RouteTableId": {
-					"Ref": "HeartbeatRouteTable"
-				}
-			}
-		},
-		"HeartbeatAZ2RouteTableAssociation": {
-			"Type": "AWS::EC2::SubnetRouteTableAssociation",
-			"Properties": {
-				"SubnetId": {
-					"Ref": "HeartbeatSubnetB"
-				},
-				"RouteTableId": {
-					"Ref": "HeartbeatRouteTable"
-				}
-			}
-		},
-		"AZ1SubnetRouteTableAssociation": {
-			"Type": "AWS::EC2::SubnetRouteTableAssociation",
-			"Properties": {
-				"SubnetId": {
-					"Ref": "PrivateSubnetA"
-				},
-				"RouteTableId": {
-					"Ref": "PrivateRouteTable"
-				}
-			}
-		},
-		"AZ2SubnetRouteTableAssociation": {
-			"Type": "AWS::EC2::SubnetRouteTableAssociation",
-			"Properties": {
-				"SubnetId": {
-					"Ref": "PrivateSubnetB"
-				},
-				"RouteTableId": {
-					"Ref": "PrivateRouteTable"
-				}
-			}
-		},
-		"SubnetRouteTableAssociation1": {
-			"Properties": {
-				"RouteTableId": {
-					"Ref": "RouteTable"
-				},
-				"SubnetId": {
-					"Ref": "PublicSubnetA"
-				}
-			},
-			"Type": "AWS::EC2::SubnetRouteTableAssociation"
-		},
-		"SubnetRouteTableAssociation2": {
-			"Properties": {
-				"RouteTableId": {
-					"Ref": "RouteTable"
-				},
-				"SubnetId": {
-					"Ref": "PublicSubnetB"
-				}
-			},
-			"Type": "AWS::EC2::SubnetRouteTableAssociation"
-		},
-		"SubnetRouteTableAssociation3": {
-			"Properties": {
-				"RouteTableId": {
-					"Ref": "RouteTable"
-				},
-				"SubnetId": {
-					"Ref": "MgmtSubnetA"
-				}
-			},
-			"Type": "AWS::EC2::SubnetRouteTableAssociation"
-		},
-		"SubnetRouteTableAssociation4": {
-			"Properties": {
-				"RouteTableId": {
-					"Ref": "RouteTable"
-				},
-				"SubnetId": {
-					"Ref": "MgmtSubnetB"
-				}
-			},
-			"Type": "AWS::EC2::SubnetRouteTableAssociation"
-		},
-		"S3Endpoint": {
-			"Type": "AWS::EC2::VPCEndpoint",
-			"Properties": {
-				"PolicyDocument": {
-					"Version": "2012-10-17",
-					"Statement": [
-						{
-							"Effect": "Allow",
-							"Principal": "*",
-							"Action": [
-								"s3:*"
-							],
-							"Resource": [
-								"*"
-							]
-						}
-					]
-				},
-				"RouteTableIds": [
-					{
-						"Ref": "RouteTable"
-					}
-				],
-				"ServiceName": {
-					"Fn::Join": [
-						"",
-						[
-							"com.amazonaws.",
-							{
-								"Ref": "AWS::Region"
-							},
-							".s3"
-						]
-					]
-				},
-				"VpcId": {
-					"Ref": "VPCID"
-				}
-			}
 		}
 	},
 	"Outputs": {
@@ -1566,12 +1083,6 @@
 				]
 			},
 			"Description": "URL to access FortigateB"
-		},
-		"FGTBPassword": {
-			"Value": {
-				"Ref": "FgtB"
-			},
-			"Description": "Password to access FortigateB"
 		}
 	}
 }
