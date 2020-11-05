@@ -47,7 +47,15 @@
 						"FortiGateAHeartbeatIP",
 						"FortiGateBHeartbeatIP"
 					]
-				}
+				},
+				{
+                    "Label": {
+                        "default": "Contact"
+                    },
+                    "Parameters": [
+                        "EmailNotification"
+                    ]
+                }
 			]
 		}
 	},
@@ -170,7 +178,12 @@
 			"Type": "String",
 			"Default": "10.0.30.10/24",
 			"Description": "Enter the IP address in CIDR form for the heartbeat interface of FortiGateB (IP from heartbeat Subnet2)"
-		}
+		},
+		"EmailNotification": {
+            "Type": "String",
+            "Default": "admin@example.com",
+            "Description": "Provide an email address to receive notifications when the CloudWatch Failover Alarm is triggered"
+        }
 	},
 	"Mappings": {
 		"RegionMap": {
@@ -258,6 +271,16 @@
 				]
 			},
 			"Type": "AWS::EC2::VPC"
+		},
+		"MynewSubnet":
+		{
+			"Type" : "AWS::EC2::Subnet",
+			"Properties" : {
+				"CidrBlock" : "10.11.0.0/24",
+				"VpcId" : {
+					"Ref":"VPCID"
+				}
+			}
 		},
 		"InstanceRole": {
 			"Type": "AWS::IAM::Role",
@@ -1528,6 +1551,92 @@
 				"VpcId": {
 					"Ref": "VPCID"
 				}
+			}
+		},
+		"CloudwatchAlarmFGTA":{
+			"Type" : "AWS::CloudWatch::Alarm",
+			"Properties" : {
+				"ActionsEnabled" : true,
+				"AlarmActions" : [{
+					"Fn::Join": [
+						"",
+						[ 
+							"arn:aws:automate:",
+							{"Ref": "AWS::Region"},
+							":ec2:recover"
+						]
+					]
+				}],
+				"AlarmDescription" : "Cloudwatch alarm to monitor instances status",
+				"AlarmName" : {
+					"Fn::Join": [
+						"",
+						[ 
+							{
+								"Ref": "AWS::StackName"
+							},
+							"-CWAlarmFGTA"
+						]
+					]
+				},
+				"ComparisonOperator" : "GreaterThanThreshold",
+				"Dimensions" : [ 
+					{
+						"Name": "InstanceId",
+                    	"Value": {
+                        	"Ref": "FgtA"
+                    	}
+					}
+				],
+				"EvaluationPeriods" : 3,
+				"MetricName" : "StatusCheckFailed_System",
+				"Namespace" : "AWS/EC2",
+				"Period" : 300,
+				"Statistic" : "Minimum",
+				"Threshold" : 0
+			}
+		},
+		"CloudwatchAlarmFGTB":{
+			"Type" : "AWS::CloudWatch::Alarm",
+			"Properties" : {
+				"ActionsEnabled" : true,
+				"AlarmActions" : [{
+					"Fn::Join": [
+						"",
+						[ 
+							"arn:aws:automate:",
+							{"Ref": "AWS::Region"},
+							":ec2:recover"
+						]
+					]
+				}],
+				"AlarmDescription" : "Cloudwatch alarm to monitor instances status",
+				"AlarmName" : {
+					"Fn::Join": [
+						"",
+						[ 
+							{
+								"Ref": "AWS::StackName"
+							},
+							"-CWAlarmFGTB"
+						]
+					]
+				},
+				"ComparisonOperator" : "GreaterThanThreshold",
+				"Dimensions" : [ 
+					{
+						"Name": "InstanceId",
+                    	"Value": {
+                        	"Ref": "FgtB"
+                    	}
+					}
+				],
+				"EvaluationPeriods" : 3,
+				"MetricName" : "StatusCheckFailed_System",
+				"Namespace" : "AWS/EC2",
+				"Period" : 300,
+				"Statistic" : "Minimum",
+				"Threshold" : 0
 			}
 		}
 	},
