@@ -116,7 +116,7 @@ It is recommended to test failover with TCP/UDP protocols instead of ICMP.
 
 1. You can easily test traffic directions connecting to the linux device using the following commands:
  ssh -i < path to your private key > ec2-user@< public ip of the linux device >
- ping <private ip of the linux device located in the other VPC>
+ ping "private ip of the linux device located in the other VPC"
  ping 8.8.8.8 => (test S-N traffic direction)
 
 2. login to one of the two Fortigate unit:
