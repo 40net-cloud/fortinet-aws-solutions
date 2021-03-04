@@ -115,9 +115,9 @@ It is recommended to test failover with TCP/UDP protocols instead of ICMP.
 ## After deployment
 
 1. You can easily test traffic directions connecting to the linux device using the following commands:
-    ssh -i < path to your private key > ec2-user@< public ip of the linux device >
-    ping <private ip of the linux device located in the other VPC>
-    ping 8.8.8.8 => (test S-N traffic direction)
+ ssh -i < path to your private key > ec2-user@< public ip of the linux device >
+ ping <private ip of the linux device located in the other VPC>
+ ping 8.8.8.8 => (test S-N traffic direction)
 
 2. login to one of the two Fortigate unit:
 From the AWS console Services > EC2, click on the Fortigate instance and retrieve its public IP and its instance ID. You can now connect to its GUI using the default login "admin" and the default password < instance ID >. You will be prompted to change the password.
