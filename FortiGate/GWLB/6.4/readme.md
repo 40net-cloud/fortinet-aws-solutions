@@ -46,8 +46,6 @@ The main benefits of this solution are:
   - stateful inspection
   - No need for source NATting for E-W communications  
 
-![TGW design with GWLB integration](images/tgw-gwlb.png)
-
 ## How it works
 
 ### East<->West traffic
