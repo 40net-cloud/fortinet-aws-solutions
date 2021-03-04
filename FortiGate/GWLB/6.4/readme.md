@@ -58,6 +58,7 @@ As **step5**, the local Fortigate device is now receiving the packets on its uni
 After the packets have reached out to the GWLB interface via the geneve tunnel, they are routed back to the originating endpoint subnet as described by **step6**. 
 Endpoint subnet is associated to a routing table whose purpose is to route all traffic to TGW via the VPC attachment. Packets reach out to the TGW (**step7**) via the attachment (depicted in red) then hit the associated red routing table. 
 TGW will route the packets to their final destination in the destination VPC as **step8**.
+
 ** note: Return packets stricly follow the same path **
 
 ![E-W traffic direction](images/EW-direction.png)
@@ -74,9 +75,11 @@ As **step5**, the local Fortigate device is now receiving the packets on its uni
 ![S-N traffic direction](images/SN-direction.png)
 
 ### North->South
-Ingress traffic is bit more challenging because GWLB can only initiate a session with a SYN packet entering the endpoint interface. Reverse direction (from target to GWLB interface) is not allowed. Therefore traffic must reach out to the GWLB before packets hit the targets. As ingress sessions must point to a private IP inside the security VPC, they need to be directed to the Fortigate device before it gets forwarded to their final destination. This would add some complexity in routing. 
-The recommended approach is to enter the infrastructure from the IGW of the destination VPC. Ingress packets hit the edge routing database of the VPC which forward them to a local GWLB endpoint (step1). The endpoint is responsible for sending packets directly to the GWLB as step2 before they get dispatched to the target group of Fortigates. The Fortigate will clean the sessions with advanced filtering and route the traffic back to the GWLB (step4). 
-Finally the packets follow a path back to the GWLB endpoint located in the server VPC and get routed to their destination using the local routing table the endpoint subnet is associated to.
+Ingress traffic is bit more challenging because GWLB can only initiate a session with a SYN packet entering the endpoint interface. Reverse direction (from target to GWLB interface) is not allowed. Therefore traffic must reach out to the GWLB before packets hit the targets. Bypassing the GWLB and using Fortigate as the destination of the ingress session would add some complexity in routing (especially for return packets). 
+
+The recommended approach to reach a server is to use the local IGW of the VPC it is located in (**step1**). Ingress packets would hit the edge routing database of the VPC (i.e the routing table of the IGW) which forward them to a local GWLB endpoint (**step2**). The endpoint is responsible for sending packets directly to the GWLB as **step3** before they get dispatched to the target group of Fortigates (**step4**). The Fortigate will clean the sessions with advanced filtering and route the traffic back to the GWLB. 
+As **step5**, the packets follow a path back to the GWLB endpoint located in the server VPC. The GWLB endpoint is located on a specific subnet whose routing table has a default route to the IGW and a local route to the VPC CIDR. It is responsible for routing the packets to their final destination as **step6**. 
+Return traffic is nearly similair: after they are cleaned by the Fortigate device, packets coming back to the endpoint will use the default route instead of the local route installed on the endpoint subnet's local router. This local router located in the server VPC will route the packets to the source, located on internet (**step8 and step9**).
 
 ![N-S traffic direction](images/NS-direction.png)
 
