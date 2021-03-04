@@ -110,11 +110,11 @@ The Fortinet based infrastructure solution can be deployed using the AWS console
 ![cloudformation form4](images/form-4.png)
 
 
-# Failover process
+## Failover process
 
 It is recommended to test failover with TCP/UDP protocols instead of ICMP.
 
-# After deployment
+## After deployment
 
 1. You can easily test traffic directions connecting to the linux device using the following commands:
     ssh -i < path to your private key > ec2-user@< public ip of the linux device >
@@ -125,7 +125,7 @@ It is recommended to test failover with TCP/UDP protocols instead of ICMP.
 From the AWS console Services > EC2, click on the Fortigate instance and retrieve its public IP and its instance ID. You can now connect to its GUI using the default login "admin" and the default password < instance ID >. You will be prompted to change the password.
 
 
-# Support
+## Support
 Fortinet-provided scripts in this and other GitHub projects do not fall under the regular Fortinet technical support scope and are not supported by FortiCare Support Services.
 For direct issues, please refer to the [Issues](https://github.com/fortinet/fortigate-terraform-deploy/issues) tab of this GitHub project.
 For other questions related to this project, contact [github@fortinet.com](mailto:github@fortinet.com).
