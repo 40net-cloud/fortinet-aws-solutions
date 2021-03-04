@@ -1,4 +1,4 @@
-# AWS Transit Gateway flows secured by a pair of Fortigate devices served by AWS GWLB
+# Provide advanced L7 security to AWS TGW designs using FortiGate VM and AWS GWLB
 
 ## Introduction
 
@@ -9,7 +9,7 @@ The Transit Gateway is meant to supersede the more complex and expensive Transit
 Recently AWS released a new load balancer to facilitate the integration of security devices into hub and spokes designs. Using ![GWLB](https://aws.amazon.com/elasticloadbalancing/gateway-load-balancer/), stateful sessions can be distributed to security devices thus overcoming some limitations regarding to performance, routing or failover...  
 
 
-## About GWLB
+### About GWLB
 
 GWLB was released to help AWS :
 
@@ -28,26 +28,16 @@ It is made of three major components:
 
 As GWLB has been designed to take AWS zoning into consideration, the sessions will be preferably dispatched to targets located in the same zone as the origin of the traffic. This introduces a limitation with large architectures where sources and destinations may be located in different zones. 
 
-TGW component may be used as a relay and stateful object to avoid assymetric flows when dealing with multi zones communications. It is mandatory object to support advanced security for E-W traffic multi zones.
-
-As GWLB has been designed to take AWS zoning into consideration, the sessions will be preferably dispatched to targets located in the same zone as the origin of the traffic. This introduces a limitation with large architectures where sources and destinations may be located in different zones. 
-
-TGW component may be used as a relay and stateful object to avoid assymetric flows when dealing with multi zones communications. It is mandatory object to support advanced security for E-W traffic multi zones.
+TGW component may be used as a relay and stateful object to avoid assymetric flows when dealing with multi zones communications. It is a mandatory object to support advanced security for E-W traffic multi zones.
 
 
-# Design
+## Design
 
 As GWLB was introduced to help seamless integration of third party security components into traditional hub and spokes architectures, Fortinet has put efforts to natively support geneve tunnels to connect to this component.
 
-- All sessions initiated from AWS devices will be routed to TGW running in appliance mode (stateful) before they get forwarded to a GWLB endpoint. This extends privatelink based scenriis. GWLB then creates a session and serves traffic to 
+- All sessions initiated from AWS devices will be routed to TGW running in appliance mode (stateful) before they get forwarded to a GWLB endpoint. This extends privatelink based scenariis. GWLB then creates a session and serves traffic to one Fortigate component for L7 advanced security (IPS, AV, Application control, Web filtering, DLP, WAF...). After cleaning, traffic destined to an AWS VPC returns to GWLB via the same originating geneve tunnel and GWLB originating endpoint. This traffic will be routed back to TGW to reach out to its destination as the next hop. Traffic destined to internet is immediately routed by the Fortigate to the local IGW of the security VPC. 
 
-one Fortigate component for L7 advanced security (IPS, AV, Application control, Web filtering, DLP, WAF...). After cleaning, traffic destined to an AWS VPC returns to GWLB via the same originating geneve tunnel and GWLB originating endpoint. This traffic 
-
-will be routed back to TGW to reach out to its destination as a next hop. Traffic destined to internet is immediately routed by the Fortigate to the local IGW of the security VPC. 
-
-- Ingress traffic initiated from Internet to a device located in a VPC must enter via its local IGW. Traffic is routed to local GWLB endpoint (located inside the VPC) before reaching out to the GWLB then a Fortigate device for inspection. Traffic is returned back to originating VPC via the endpoint and 
-
-meets its destination.
+- Ingress traffic initiated from Internet to a device located in a VPC must enter via its local IGW. Traffic is routed to local GWLB endpoint (located inside the VPC) before reaching out to the GWLB then a Fortigate device for inspection. Traffic is returned back to originating VPC via the endpoint and meets its destination.
 
 The main benefits of this solution are:
 
@@ -58,9 +48,10 @@ The main benefits of this solution are:
 
 ![TGW design with GWLB integration](images/tgw-gwlb.png)
 
-# How it works
+## How it works
 
-East<->West traffic: When a VPC needs to communicate with another VPC, the packets are initiated from the client to its gateway. The local routing table fo the local VPC subnet will route the packets to the TGW via its attachement (depicted in orange in previous schema). As the subnet is associated to the orange routing table, the destination of the packets is checked against that routing table and the packets are forwarded to the security VPC via the referenced attachement link in red.
+### East<->West traffic
+When a VPC needs to communicate with another VPC, the packets are initiated from the client to its gateway. The local routing table fo the local VPC subnet will route the packets to the TGW via its attachement (depicted in orange in previous schema). As the subnet is associated to the orange routing table, the destination of the packets is checked against that routing table and the packets are forwarded to the security VPC via the referenced attachement link in red.
 As step2, the packets are now forwarded to the security VPC either via zoneA or zoneB attached subnets. TGW is configured in appliance mode (i.e stateful mode) and will always route packets to the same zone for one established session. Both subnets are associated to a local routing table forwarding all packets to the GWLB endpoint interface located in the same local zone. This is step3.
 The packets entering the endpoint are automatically forwarded to the local GWLB component responsible for establishing a tunnel to the local Fortigate device located in the zone. 
 As step4, the local Fortigate device is now receiving the packets on its unique geneve tunnel interface then filters them using all its security filters and modules (AV, IPS, AS, DLP, WAF, ... ). If no Fortigate device is available in that zone, GWLB component is configured to forward traffic to another zone where another Fortigate device will be present. 
@@ -69,14 +60,16 @@ After the packets have reached out to the GWLB interface via the geneve tunnel, 
 
 ** note: Return packets stricly follow the same path **
 
-South->North: When a VPC needs to reach out to internet, the packets are initiated from the client to its gateway. The local routing table fo the local VPC subnet will route the packets to the TGW via its attachement (depicted in orange in previous schema). As the subnet is associated to the orange routing table, the destination of the packets is checked against that routing table and the packets are forwarded to the security VPC via the referenced attachement link in red.
+### South->North traffic
+When a VPC needs to reach out to internet, the packets are initiated from the client to its gateway. The local routing table fo the local VPC subnet will route the packets to the TGW via its attachement (depicted in orange in previous schema). As the subnet is associated to the orange routing table, the destination of the packets is checked against that routing table and the packets are forwarded to the security VPC via the referenced attachement link in red.
 As step2, the packets are now forwarded to the security VPC either via zoneA or zoneB attached subnets. TGW is configured in appliance mode (i.e stateful mode) and will always route packets to the same zone for one established session. Both subnets are associated to a local routing table forwarding all packets to the GWLB endpoint interface located in the same local zone. This is step3.
 The packets entering the endpoint are automatically forwarded to the local GWLB component responsible for establishing a tunnel to the local Fortigate device located in the zone. 
 As step4, the local Fortigate device is now receiving the packets on its unique geneve tunnel interface then filters them using all its security filters and modules (AV, IPS, AS, DLP, WAF, ... ). If no Fortigate device is available in that zone, GWLB component is configured to forward traffic to another zone where another Fortigate device will be present. 
 After cleaning, the solution uses its local default route to forward the packets to the default subnet's router of the VPC. This subnet will forward packets to the local IGW of the VPC to reach out to the final destination.
 
 
-North->South: Ingress traffic is bit more challenging because GWLB can only initiate a session from a SYN packet entering the endpoint. As ingress sessions must point to a private IP inside the security VPC, they need to be directed to the Fortigate device before it gets forwarded to their final destination. This would add some complexity in routing. 
+### North->South
+Ingress traffic is bit more challenging because GWLB can only initiate a session from a SYN packet entering the endpoint. As ingress sessions must point to a private IP inside the security VPC, they need to be directed to the Fortigate device before it gets forwarded to their final destination. This would add some complexity in routing. 
 The recommended approach is to enter the infrastructure from the IGW of the destination VPC. Ingress packets hit the edge routing database of the VPC which forward them to a local GWLB endpoint (step1). The endpoint is responsible for sending packets directly to the GWLB as step2 before they get dispatched to the target group of Fortigates. The Fortigate will clean the sessions with advanced filtering and route the traffic back to the GWLB (step4). 
 Finally the packets follow a path back to the GWLB endpoint located in the server VPC and get routed to their destination using the local routing table the endpoint subnet is associated to.
 
