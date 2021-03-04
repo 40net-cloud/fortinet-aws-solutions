@@ -51,13 +51,13 @@ The main benefits of this solution are:
 ## How it works
 
 ### East<->West traffic
-When a VPC needs to communicate with another VPC, the packets are initiated from the client to its gateway. The local routing table fo the local VPC subnet will route the packets to the TGW via its attachement (depicted in orange in previous schema). As the subnet is associated to the orange routing table, the destination of the packets is checked against that routing table and the packets are forwarded to the security VPC via the referenced attachement link in red.
-As step2, the packets are now forwarded to the security VPC either via zoneA or zoneB attached subnets. TGW is configured in appliance mode (i.e stateful mode) and will always route packets to the same zone for one established session. Both subnets are associated to a local routing table forwarding all packets to the GWLB endpoint interface located in the same local zone. This is step3.
-The packets entering the endpoint are automatically forwarded to the local GWLB component responsible for establishing a tunnel to the local Fortigate device located in the zone. 
-As step4, the local Fortigate device is now receiving the packets on its unique geneve tunnel interface then filters them using all its security filters and modules (AV, IPS, AS, DLP, WAF, ... ). If no Fortigate device is available in that zone, GWLB component is configured to forward traffic to another zone where another Fortigate device will be present. 
-After cleaning, the solution uses its local routing table (pointing to all VPC CIDR) to forward the packets back to the tunnel as step5.
-After the packets have reached out to the GWLB interface via the geneve tunnel, they are routed back to the originating endpoint subnet. Endpoint subnet is associated to a routing table whose purpose is to route all traffic to TGW via the VPC attachment. Packets reach out to the TGW as step6 then get routed to final destination in the VPC.
-
+When a VPC needs to communicate with another VPC, the packets are initiated from the client to its gateway. The local routing table fo the local VPC subnet will route the packets to the TGW via its attachement (depicted in orange as **step1**). As the subnet is associated to the orange routing table, the destination of the packets is checked against that routing table and the packets are forwarded to the security VPC via the referenced attachement link in red.
+As **step2**, the packets are now forwarded to the security VPC either via zoneA or zoneB attached subnets. TGW is configured in appliance mode (i.e stateful mode) and will always route packets to the same zone for one established session. Both relay subnets are associated to a local routing table forwarding all packets to the GWLB endpoint interface located in the same local zone. This is **step3**.
+The packets entering the endpoint are automatically forwarded to the local GWLB component responsible for establishing a tunnel to the local Fortigate device located in the zone. This is **step4**.
+As **step5**, the local Fortigate device is now receiving the packets on its unique geneve tunnel interface and processes them using all its security filters and modules (AV, IPS, AS, DLP, WAF, ... ). If no Fortigate device is available in that zone, GWLB component is configured to forward traffic to another zone where another Fortigate device will be present. After cleaning, the solution uses its local routing table (pointing to all VPC CIDR) to forward the packets back to the tunnel. 
+After the packets have reached out to the GWLB interface via the geneve tunnel, they are routed back to the originating endpoint subnet as described by **step6**. 
+Endpoint subnet is associated to a routing table whose purpose is to route all traffic to TGW via the VPC attachment. Packets reach out to the TGW as step7 via the attachment (depicted in red) then hit the associated red routing table. 
+TGW will route the packets to their final destination in the destination VPC as **step8**.
 ** note: Return packets stricly follow the same path **
 
 ### South->North traffic
