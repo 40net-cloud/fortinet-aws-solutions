@@ -6,9 +6,7 @@ When enterprises have their resources spread over the cloud, they often use segm
 
 The Transit Gateway is meant to supersede the more complex and expensive Transit VPC technology. This is a didactic example to showcase how a Transit VPC should be configured to achieve a non-trivial (full mesh) scenario. It is the most useful EC2 component to achieve a hub and spoke architecture. 
 
-Recently AWS released a new load balancer to facilitate the integration of security devices into hub and spokes designs. Using [GWLB] (https://aws.amazon.com/elasticloadbalancing/gateway-load-balancer/), stateful sessions can be distributed to 
-
-security devices thus overcoming some limitations regarding to performance, routing or failover...  
+Recently AWS released a new load balancer to facilitate the integration of security devices into hub and spokes designs. Using ![GWLB](https://aws.amazon.com/elasticloadbalancing/gateway-load-balancer/), stateful sessions can be distributed to security devices thus overcoming some limitations regarding to performance, routing or failover...  
 
 
 ## About GWLB
