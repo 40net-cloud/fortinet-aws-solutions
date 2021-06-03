@@ -272,16 +272,6 @@
 			},
 			"Type": "AWS::EC2::VPC"
 		},
-		"MynewSubnet":
-		{
-			"Type" : "AWS::EC2::Subnet",
-			"Properties" : {
-				"CidrBlock" : "10.11.0.0/24",
-				"VpcId" : {
-					"Ref":"VPCID"
-				}
-			}
-		},
 		"InstanceRole": {
 			"Type": "AWS::IAM::Role",
 			"Properties": {
