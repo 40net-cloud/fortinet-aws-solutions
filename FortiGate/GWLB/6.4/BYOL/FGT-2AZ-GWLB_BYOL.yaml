@@ -1,19 +1,24 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: 2 VPC + 2 Subnet/VPC + 2 Ubuntu Hosts - to be completed
+Description: 4 VPC + 3 Ubuntu Hosts
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
       - Label:
-          default: Spoke1 VPC Configuration and Mgmt
+          default: Spoke1 VPC Configuration for S-N and E-W traffic
         Parameters:
           - SVPC1CIDR
           - SVPC1SubnetCIDRs
           - MyIPForAccess
       - Label:
-          default: Spoke2 VPC Configuration
+          default: Spoke2 VPC Configuration for S-N and E-W traffic
         Parameters:
           - SVPC2CIDR
           - SVPC2SubnetCIDRs
+      - Label:
+          default: Spoke3 VPC Configuration for N-S traffic
+        Parameters:
+          - SVPCNSCIDR
+          - SVPCNSSubnetCIDRs
       - Label:
           default: Security Hub Configuration
         Parameters:
@@ -32,8 +37,6 @@ Metadata:
           - GeneveSubnet2RouterIP
           - InitS3Bucket
           - InitS3BucketRegion
-          - LicenceName1
-          - LicenceName2
       - Label:
           default: Host Configuration
         Parameters:
@@ -75,6 +78,15 @@ Parameters:
     Description: Comma-delimited list of CIDR blocks for VPC2 Format (AZ1 Subnet, AZ2 Subnet)
     Type: CommaDelimitedList
     Default: '10.98.1.0/24, 10.98.2.0/24'
+  SVPCNSCIDR:
+    Type: String
+    Default: 10.95.0.0/16
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    Description: Enter the VPC CIDR that you are using for
+  SVPCNSSubnetCIDRs:
+    Description: Comma-delimited list of CIDR blocks for VPC3 Format (AZ1 Subnet, AZ2 Subnet)
+    Type: CommaDelimitedList
+    Default: '10.95.1.0/24, 10.95.2.0/24'
   KEYNAME:
     Description: Select Keypair for all hosts - Existing Keypair is required 
     Type: AWS::EC2::KeyPair::KeyName
@@ -196,12 +208,6 @@ Parameters:
       - us-east-2
       - us-west-1
       - us-west-2
-  LicenceName1:
-    Type: 'String'
-    Description: Provide the name of the BYOL licence file for Fortigate1 located in the bucket
-  LicenceName2:
-    Type: 'String'
-    Description: Provide the name of the BYOL licence file for Fortigate2 located in the bucket
 Mappings: 
   RegionMap:
     af-south-1:
@@ -303,7 +309,7 @@ Resources:
           Value: !Join 
               - '-'
               - - !Ref 'AWS::StackName'
-                - SPK1VPC-Mgmt
+                - SPK1VPC-Client-EW-SN
   SPK1VPCSUB1:
     Type: 'AWS::EC2::Subnet'
     Properties:
@@ -331,7 +337,7 @@ Resources:
           Value: !Join 
             - '-'
             - - !Ref 'AWS::StackName'
-              - SPK2VPC
+              - SPK2VPC-Server-EW-SN
   SPK2VPCSUB1:
     Type: 'AWS::EC2::Subnet'
     Properties:
@@ -348,6 +354,50 @@ Resources:
             - '-'
             - - !Ref 'AWS::StackName'
               - SPK2PublicSUB
+  SPKNSVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: !Ref SVPCNSCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Join 
+              - '-'
+              - - !Ref 'AWS::StackName'
+                - SPKVPC-Server-NorthSouth
+  SPKNSVPCSUB1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref SPKNSVPC
+      CidrBlock: !Select 
+        - 0
+        - !Ref SVPCNSSubnetCIDRs
+      AvailabilityZone: !Select 
+        - 1
+        - Fn::GetAZs: !Ref 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - SPKNSPublicSUB
+  SPKNSVPCEndpointSub:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref SPKNSVPC
+      CidrBlock: !Select 
+        - 1
+        - !Ref SVPCNSSubnetCIDRs
+      AvailabilityZone: !Select 
+        - 1
+        - Fn::GetAZs: !Ref 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - SPKNSEndpointSUB
   VPCID:
     Properties:
       CidrBlock: !Ref VPCCIDR
@@ -479,6 +529,11 @@ Resources:
       InternetGatewayId: !Ref IGWSPK2
       VpcId: !Ref SPK2VPC
     Type: 'AWS::EC2::VPCGatewayAttachment'
+  AttachGateway4:
+    Properties:
+      InternetGatewayId: !Ref IGWSPK3
+      VpcId: !Ref SPKNSVPC
+    Type: 'AWS::EC2::VPCGatewayAttachment'
   IGWSPK:
     Properties:
       Tags:
@@ -496,6 +551,15 @@ Resources:
             - ''
             - - !Ref 'AWS::StackName'
               - IGW-SPOKE2
+    Type: 'AWS::EC2::InternetGateway'
+  IGWSPK3:
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - IGW-SPOKE3
     Type: 'AWS::EC2::InternetGateway'
   PublicRouteTableHUB:
     Properties:
@@ -606,6 +670,74 @@ Resources:
     Properties:
       SubnetId: !Ref SPK2VPCSUB1
       RouteTableId: !Ref RouteTableSPK2PUB
+  SubnetGWRouteTableAssociationSPK3IGW:
+    Type: 'AWS::EC2::GatewayRouteTableAssociation'
+    Properties:
+      GatewayId: !Ref IGWSPK3
+      RouteTableId: !Ref RouteTableSPK3IGW
+  SubnetPublicRouteTableAssociationSPK3IGW:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SPKNSVPCSUB1
+      RouteTableId: !Ref RouteTableSPK3PUB
+  SubnetEndpointRouteTableAssociationSPK3IGW:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SPKNSVPCEndpointSub
+      RouteTableId: !Ref RouteTableSPK3Endpoint
+  RouteTableSPK3PUB:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref SPKNSVPC
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - SPK3VPC-RT
+  PublicDefaultRouteSPK3:
+    DependsOn: AttachGateway4
+    Type: 'AWS::EC2::Route'
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      VpcEndpointId: !Ref VPCEndpointC
+      RouteTableId: !Ref RouteTableSPK3PUB
+  RouteTableSPK3IGW:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref SPKNSVPC
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - SPK3IGW-RT
+  PublicDefaultRouteSPK3IGW:
+    DependsOn: AttachGateway4
+    Type: 'AWS::EC2::Route'
+    Properties:
+      DestinationCidrBlock: !Select 
+        - 0
+        - !Ref SVPCNSSubnetCIDRs
+      VpcEndpointId: !Ref VPCEndpointC
+      RouteTableId: !Ref RouteTableSPK3IGW
+  RouteTableSPK3Endpoint:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref SPKNSVPC
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - SPK3VPCEndpoint-RT
+  PublicDefaultRouteSPK3Endpoint:
+    DependsOn: AttachGateway4
+    Type: 'AWS::EC2::Route'
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref IGWSPK3
+      RouteTableId: !Ref RouteTableSPK3Endpoint
   EIPMGMTHOSTENI1:
     Type: AWS::EC2::EIP
     DependsOn: AttachGateway2
@@ -632,11 +764,27 @@ Resources:
             - '-'
             - - !Ref 'AWS::StackName'
               - SPK-MGMT-HOST-ENI1
+  EIPNSSRVENI1:
+    Type: AWS::EC2::EIP
+    DependsOn: AttachGateway4
+    Properties: 
+      Domain: vpc
+      Tags: 
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - SPK3-SERVER-ENIEIP
   EIPAssociationMGMT:
     Type: AWS::EC2::EIPAssociation
     Properties:
       EIP: !Ref EIPMGMTHOSTENI1
       InstanceId: !Ref MGMTHOST
+  IPAssociationSPK3SRV:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      EIP: !Ref EIPNSSRVENI1
+      InstanceId: !Ref SRVHOST
   MGMTHOST:
     Type: AWS::EC2::Instance
     Properties:
@@ -677,11 +825,31 @@ Resources:
             - '-'
             - - !Ref 'AWS::StackName'
               - SPK2-TEST-HOST
+  SRVHOST:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref KEYNAME
+      ImageId: !FindInMap [ AWSRegionArch2AMI, !Ref 'AWS::Region' , !FindInMap [ AWSInstanceType2Arch, !Ref InstanceType, Arch ] ]
+      InstanceType: !Ref InstanceType
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          GroupSet: 
+          - !Ref InstanceSecurityGroupSPK3
+          SubnetId: !Ref SPKNSVPCSUB1 
+      UserData: !Base64 |
+        #!/bin/bash -ex
+        # put your script here
+      Tags:
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - SPK3-SRV-HOST
   InstanceSecurityGroupHUB:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref VPCID
-      GroupDescription: Enables SSH Access
+      GroupDescription: allows all traffic
       SecurityGroupIngress:
       - IpProtocol: '-1'
         FromPort: 0
@@ -691,7 +859,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref SPK1MGMTVPC
-      GroupDescription: Enables SSH Access
+      GroupDescription: allows all traffic
       SecurityGroupIngress:
       - IpProtocol: '-1'
         FromPort: 0
@@ -701,7 +869,17 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref SPK2VPC
-      GroupDescription: Enables SSH Access
+      GroupDescription: allows all traffic
+      SecurityGroupIngress:
+      - IpProtocol: '-1'
+        FromPort: 0
+        ToPort: 65535
+        CidrIp: 0.0.0.0/0
+  InstanceSecurityGroupSPK3:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref SPKNSVPC
+      GroupDescription: allows all traffic
       SecurityGroupIngress:
       - IpProtocol: '-1'
         FromPort: 0
@@ -911,6 +1089,8 @@ Resources:
           DeviceIndex: '0'
         - NetworkInterfaceId: !Ref FGTAENI1
           DeviceIndex: '1'
+        - NetworkInterfaceId: !Ref FGTAENI2
+          DeviceIndex: '2'
       Tags:
         - Key: Name
           Value: !Join 
@@ -936,7 +1116,7 @@ Resources:
             - " : " 
             - "\""
             - "/"
-            - !Ref LicenceName1
+            - "no"
             - "\""
             - ",\n"
             - "\"config\""
@@ -961,6 +1141,8 @@ Resources:
           DeviceIndex: '0'
         - NetworkInterfaceId: !Ref FGTBENI1
           DeviceIndex: '1'
+        - NetworkInterfaceId: !Ref FGTBENI2
+          DeviceIndex: '2'
       Tags:
         - 
           Key: Name
@@ -987,7 +1169,7 @@ Resources:
             - " : " 
             - "\""
             - "/"
-            - !Ref LicenceName2
+            - "no"
             - "\""
             - ",\n"
             - "\"config\""
@@ -1056,12 +1238,50 @@ Resources:
             - ''
             - - !Ref 'AWS::StackName'
               - FgtBENI1
+  FGTAENI2:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      Description: port3
+      GroupSet:
+        - !Ref FGTSecGrpBase
+      SourceDestCheck:  false
+      SubnetId: !Ref PublicSubnetA
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - FgtAENI3
+  FGTBENI2:
+    Type: 'AWS::EC2::NetworkInterface'
+    Properties:
+      Description: port3
+      GroupSet:
+        - !Ref FGTSecGrpBase
+      SourceDestCheck:  false
+      SubnetId: !Ref PublicSubnetB
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref 'AWS::StackName'
+              - FgtBENI3
   FgtAMgmtEIP:
     Type: 'AWS::EC2::EIP'
     Properties:
       Domain: vpc
     DependsOn: FgtA
   FgtBMgmtEIP:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+    DependsOn: FgtB
+  FgtAInternetEIP:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+    DependsOn: FgtA
+  FgtBInternetEIP:
     Type: 'AWS::EC2::EIP'
     Properties:
       Domain: vpc
@@ -1080,6 +1300,20 @@ Resources:
         - FgtBMgmtEIP
         - AllocationId
       NetworkInterfaceId: !Ref FGTBENI0
+  FgtAInternetEIPASSOCIATION:
+    Type: 'AWS::EC2::EIPAssociation'
+    Properties:
+      AllocationId: !GetAtt 
+        - FgtAInternetEIP
+        - AllocationId
+      NetworkInterfaceId: !Ref FGTAENI2
+  FgtBInternetEIPASSOCIATION:
+    Type: 'AWS::EC2::EIPAssociation'
+    Properties:
+      AllocationId: !GetAtt 
+        - FgtBInternetEIP
+        - AllocationId
+      NetworkInterfaceId: !Ref FGTBENI2
   RelayRouteTableA:
     Type: 'AWS::EC2::RouteTable'
     Properties:
@@ -1159,6 +1393,18 @@ Resources:
         - !Ref EndpointSubnetB
       VpcEndpointType: GatewayLoadBalancer
       VpcId: !Ref VPCID
+  VPCEndpointC:
+    DependsOn: FgtAMgmtEIP
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      ServiceName: !Join
+        - ""
+        - - !Sub 'com.amazonaws.vpce.${AWS::Region}.' 
+          - !Ref GWLBServiceEndpoint
+      SubnetIds: 
+        - !Ref SPKNSVPCEndpointSub
+      VpcEndpointType: GatewayLoadBalancer
+      VpcId: !Ref SPKNSVPC
   GWLBListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties: 
@@ -1234,15 +1480,36 @@ Resources:
             - template = '''\
             - config system global
             - set hostname {hostname}
+            - set vdom-mode split-vdom
             - end
+            - config global
             - config system interface
             - edit port1
             - set defaultgw disable
             - set allowaccess ping http https ssh
             - next
             - edit port2
+            - set vdom "FG-traffic"
+            - set defaultgw disable
+            - set allowaccess ping http https ssh
+            - next
+            - edit port3
+            - set vdom "FG-traffic"
+            - set defaultgw disable
             - set allowaccess ping http https ssh
             - end
+            - end
+            - end
+            - config vdom
+            - edit root
+            - config router static
+            - edit 1
+            - set gateway {PublicSubnetRouterIP}
+            - set device "port1"
+            - end
+            - end
+            - config vdom
+            - edit FG-traffic
             - config system geneve
             - edit "gen"
             - set interface "port2"
@@ -1250,21 +1517,24 @@ Resources:
             - set remote-ip {GWLBIp}
             - next
             - end
+            - config firewall address
+            - edit CIDR1
+            - set subnet {VPCSPK1}
+            - next
+            - edit CIDR2
+            - set subnet {VPCSPK2}
+            - next
+            - edit CIDR3
+            - set subnet {VPCSPK3}
+            - next
+            - end
+            - config firewall addrgrp
+            - edit local
+            - set member "CIDR1" "CIDR2" "CIDR3"
+            - end
             - config firewall policy
             - edit 1
-            - set name "outbound-all"
-            - set srcintf "gen"
-            - set dstintf "port1"
-            - set srcaddr "all"
-            - set dstaddr "all"
-            - set action accept
-            - set schedule "always"
-            - set service "ALL"
-            - set logtraffic all
-            - set nat enable
-            - next
-            - edit 2
-            - set name "geneve-outbound"
+            - set name "all"
             - set srcintf "gen"
             - set dstintf "gen"
             - set srcaddr "all"
@@ -1274,27 +1544,44 @@ Resources:
             - set service "ALL"
             - set logtraffic all
             - next
+            - edit 2
+            - set name "toInternet"
+            - set srcintf "gen"
+            - set dstintf "port3"
+            - set srcaddr "all"
+            - set dstaddr "all"
+            - set action accept
+            - set schedule "always"
+            - set service "ALL"
+            - set logtraffic all
+            - set nat enable
+            - next
+            - end
+            - config router policy
+            - edit 2
+            - set input-device "gen"
+            - set srcaddr "all"
+            - set dstaddr "local"
+            - set output-device "gen"
+            - next
+            - edit 1
+            - set input-device "gen"
+            - set srcaddr "local"
+            - set dst "0.0.0.0/0.0.0.0"
+            - set gateway {PublicSubnetRouterIP}
+            - set output-device "port3"
+            - next
             - end
             - config router static
             - edit 1
-            - set dst {VPCSPK1}
             - set gateway {GWLBIp}
             - set device "gen"
             - next
             - edit 2
-            - set dst {VPCSPK2}
-            - set gateway {GWLBIp}
-            - set device "gen"
-            - next
-            - edit 3
             - set gateway {PublicSubnetRouterIP}
-            - set device "port1"
-            - "next"
-            - edit 4
-            - set dst {VPCCIDR}
-            - set gateway {GeneveGateway}
-            - set device "port2"
-            - next
+            - set device "port3"
+            - end
+            - end
             - end\
             - "'''"
             - ''
@@ -1399,6 +1686,9 @@ Resources:
           - "',"
           - "'VPCSPK2':'"
           - !Ref SVPC2CIDR
+          - "',"
+          - "'VPCSPK3':'"
+          - !Ref SVPCNSCIDR
           - "'"
           - "}"
       FGTBInfo: !Join
@@ -1424,6 +1714,11 @@ Resources:
           - "',"
           - "'VPCSPK2':'"
           - !Ref SVPC2CIDR
+          - "',"
+          - "'VPCSPK3':'"
+          - !Ref SVPCNSCIDR
           - "'"
           - "}"
 Outputs: {}
+
+    
