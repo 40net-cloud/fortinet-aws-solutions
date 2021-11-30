@@ -198,23 +198,57 @@
 	},
 	"Mappings": {
 		"RegionMap": {
-			"eu-north-1":{"fgtami": "ami-03107d291accd5ea4"},
-			"ap-south-1":{"fgtami": "ami-0a127f57954a4a1f2"},
-			"eu-west-3":{"fgtami": "ami-0fdfb85a314198974"},
-			"eu-west-2":{"fgtami": "ami-0c061b51af9e9b077"},
-			"eu-west-1":{"fgtami": "ami-0fab4ac7da7ff40e7"},
-			"ap-northeast-3":{"fgtami": "ami-09ad17171ea4eff8d"},
-			"ap-northeast-2":{"fgtami": "ami-0d3c494bb99d82447"},
-			"ap-northeast-1":{"fgtami": "ami-03e8c6e055020dd9b"},
-			"sa-east-1":{"fgtami": "ami-03dde0d83f69a5982"},
-			"ca-central-1":{"fgtami": "ami-0ede51ef40cee3efa"},
-			"ap-southeast-1":{"fgtami": "ami-00112697759f99d8d"},
-			"ap-southeast-2":{"fgtami": "ami-07452c768a8cbed39"},
-			"eu-central-1":{"fgtami": "ami-07e1b42208e73e245"},
-			"us-east-1":{"fgtami": "ami-0f37125f0c38e8ea8"},
-			"us-east-2":{"fgtami": "ami-0d64f9d41d2c347fe"},
-			"us-west-1":{"fgtami": "ami-095959eb30adfa9a3"},
-			"us-west-2":{"fgtami": "ami-05558fc4d58e0311d"}
+	    "eu-north-1": {
+                "fgtami": "ami-026922081bf660a55"
+            },
+            "ap-south-1": {
+                "fgtami": "ami-0a40a56775ad40c3c"
+            },
+            "eu-west-3": {
+                "fgtami": "ami-02e98b116ca7b3e07"
+            },
+            "eu-west-2": {
+                "fgtami": "ami-094ac06a8c76d4ab9"
+            },
+            "eu-west-1": {
+                "fgtami": "ami-0313241e3849e200d"
+            },
+            "ap-northeast-3": {
+                "fgtami": "ami-097484810a0eb514c"
+            },
+			"ap-northeast-2": {
+                "fgtami": "ami-0f69a72652e376805"
+            },
+            "ap-northeast-1": {
+                "fgtami": "ami-0b81ee38d9205761f"
+            },
+            "sa-east-1": {
+                "fgtami": "ami-0d4a43052db2cfb3d"
+            },
+            "ca-central-1": {
+                "fgtami": "ami-08ac0958fe75153e2"
+            },
+            "ap-southeast-1": {
+                "fgtami": "ami-039794888c9b1e500"
+            },
+            "ap-southeast-2": {
+                "fgtami": "ami-091b98549e5675bbe"
+			},
+            "eu-central-1": {
+                "fgtami": "ami-0781f07684853501c"
+            },
+            "us-east-1": {
+                "fgtami": "ami-02dfec160890bf070"
+            },
+            "us-east-2": {
+                "fgtami": "ami-045bf7672b62be89c"
+            },
+            "us-west-1": {
+                "fgtami": "ami-088426c38c82189c4"
+            },
+            "us-west-2": {
+                "fgtami": "ami-0aeebdd62d4b9393e"
+			}
 		}
 	},
 	"Conditions": {},
