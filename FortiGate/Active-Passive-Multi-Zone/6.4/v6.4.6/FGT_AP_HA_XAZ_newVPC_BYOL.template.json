@@ -182,23 +182,57 @@
 	},
 	"Mappings": {
 		"RegionMap": {
-			"eu-north-1":{"fgtami": "ami-0a48ff95e49c70174"},
-			"ap-south-1":{"fgtami": "ami-015b6108d837a11bb"},
-			"eu-west-3":{"fgtami": "ami-0b4e3a514d31d3a79"},
-			"eu-west-2":{"fgtami": "ami-0ab723f14117aa285"},
-			"eu-west-1":{"fgtami": "ami-082aa757173803c84"},
-			"ap-northeast-3":{"fgtami": "ami-09eabd6630c92b02f"},
-			"ap-northeast-2":{"fgtami": "ami-0575bff848509c6d8"},
-			"ap-northeast-1":{"fgtami": "ami-046d2f9510157fe5a"},
-			"sa-east-1":{"fgtami": "ami-094f94451eda5df8b"},
-			"ca-central-1":{"fgtami": "ami-014a19c8175403554"},
-			"ap-southeast-1":{"fgtami": "ami-0c36d980e164c3372"},
-			"ap-southeast-2":{"fgtami": "ami-06217cfb67db81bd7"},
-			"eu-central-1":{"fgtami": "ami-090da6c908c1127f6"},
-			"us-east-1":{"fgtami": "ami-03b05077372374ac2"},
-			"us-east-2":{"fgtami": "ami-06793c2af5608535d"},
-			"us-west-1":{"fgtami": "ami-02b8386b83b22a768"},
-			"us-west-2":{"fgtami": "ami-0e569295bb3f6ab11"}
+			"eu-north-1": {
+					"fgtami": "ami-0d565793fcafcc38d"
+			},
+			"ap-south-1": {
+					"fgtami": "ami-0e74793df70561ae0"
+			},
+			"eu-west-3": {
+					"fgtami": "ami-00a280c8a4261248d"
+			},
+			"eu-west-2": {
+					"fgtami": "ami-0317f3b2e62373002"
+			},
+			"eu-west-1": {
+					"fgtami": "ami-05d1628fbb3c4578a"
+			},
+			"ap-northeast-3": {
+				    "fgtami": "ami-0ef0352d5db9cbb89"
+			},
+			"ap-northeast-2": {
+					"fgtami": "ami-080aac17979acbe8a"
+			},
+			"ap-northeast-1": {
+					"fgtami": "ami-0ac940c7a68e05199"
+			},
+			"sa-east-1": {
+					"fgtami": "ami-0bb84b0b8fe08f99e"
+			},
+			"ca-central-1": {
+					"fgtami": "ami-0d8e2e78e928def11"
+			},
+			"ap-southeast-1": {
+					"fgtami": "ami-069f5672f4dd9dc3e"
+			},
+			"ap-southeast-2": {
+					"fgtami": "ami-0edb09abd4de17b20"
+			},
+			"eu-central-1": {
+					"fgtami": "ami-0529297f63bef8b4d"
+			},
+			"us-east-1": {
+					"fgtami": "ami-076ce1e827764065b"
+			},
+			"us-east-2": {
+					"fgtami": "ami-0d10c9cc98e5d13ec"
+			},
+			"us-west-1": {
+					"fgtami": "ami-0d0ee5453bacacdc3"
+			},
+			"us-west-2": {
+					"fgtami": "ami-0a79ef31f760b0a6d"
+			}
 		}
 	},
 	"Conditions": {},
