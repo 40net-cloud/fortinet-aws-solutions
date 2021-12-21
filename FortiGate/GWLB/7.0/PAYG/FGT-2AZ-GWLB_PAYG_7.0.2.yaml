@@ -212,42 +212,52 @@ Parameters:
       - us-east-2
       - us-west-1
       - us-west-2
-Mappings: 
+Mappings:
   RegionMap:
+    af-south-1:
+       fgtami: ami-0529dee9b7ffd0e37
     eu-north-1:
-      fgtami: ami-03107d291accd5ea4
+       fgtami: ami-03107d291accd5ea4
     ap-south-1:
-      fgtami: ami-0a127f57954a4a1f2
+       fgtami: ami-0a127f57954a4a1f2
     eu-west-3:
-      fgtami: ami-0fdfb85a314198974
+       fgtami: ami-0fdfb85a314198974
     eu-west-2:
-      fgtami: ami-0c061b51af9e9b077
+       fgtami: ami-0c061b51af9e9b077
+    eu-south-1:
+       fgtami: ami-0cb93c71083b7dae7
     eu-west-1:
-      fgtami: ami-0fab4ac7da7ff40e7
+       fgtami: ami-0fab4ac7da7ff40e7
     ap-northeast-3:
-      fgtami: ami-09ad17171ea4eff8d
+       fgtami: ami-09ad17171ea4eff8d
     ap-northeast-2:
-      fgtami: ami-0d3c494bb99d82447
+       fgtami: ami-0d3c494bb99d82447
+    me-south-1:
+       fgtami: ami-0ad2dfcb40065e84a
     ap-northeast-1:
-      fgtami: ami-03e8c6e055020dd9b
+       fgtami: ami-03e8c6e055020dd9b
     sa-east-1:
-      fgtami: ami-03dde0d83f69a5982
+       fgtami: ami-03dde0d83f69a5982
     ca-central-1:
-      fgtami: ami-0ede51ef40cee3efa
+       fgtami: ami-0ede51ef40cee3efa
+    ap-east-1:
+       fgtami: ami-0699af54b4633491a
     ap-southeast-1:
-      fgtami: ami-00112697759f99d8d
+       fgtami: ami-00112697759f99d8d
     ap-southeast-2:
-      fgtami: ami-07452c768a8cbed39
+       fgtami: ami-07452c768a8cbed39
     eu-central-1:
-      fgtami: ami-07e1b42208e73e245
-    us-east-1: 
-      fgtami: ami-0f37125f0c38e8ea8
+       fgtami: ami-07e1b42208e73e245
+    ap-southeast-3:
+       fgtami: ami-069324eed06cf303b
+    us-east-1:
+       fgtami: ami-0f37125f0c38e8ea8
     us-east-2:
-      fgtami: ami-0d64f9d41d2c347fe
-    us-west-1: 
-      fgtami: ami-095959eb30adfa9a3
+       fgtami: ami-0d64f9d41d2c347fe
+    us-west-1:
+       fgtami: ami-095959eb30adfa9a3
     us-west-2:
-      fgtami: ami-05558fc4d58e0311d
+       fgtami: ami-05558fc4d58e0311d
   AWSInstanceType2Arch:
     t3.micro:
       Arch: HVM64
