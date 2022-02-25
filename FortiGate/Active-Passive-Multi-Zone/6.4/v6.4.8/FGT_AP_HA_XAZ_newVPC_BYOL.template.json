@@ -204,7 +204,6 @@
 			"us-east-2":{"fgtami": "ami-0e14b6e95d1f2b4ec"},
 			"us-west-1":{"fgtami": "ami-0295cf456d3e31326"},
 			"us-west-2":{"fgtami": "ami-07b2bd7a8d1c6aaa9"}
-			}
 		}
 	},
 	"Conditions": {},
