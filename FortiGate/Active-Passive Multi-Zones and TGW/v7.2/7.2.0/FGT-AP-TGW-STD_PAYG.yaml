@@ -216,49 +216,49 @@ Parameters:
 Mappings:
   RegionMap:
     af-south-1:
-       fgtami: ami-0295c5080b9805520
+       fgtami: ami-0020b49aee42aac43
     eu-north-1:
-       fgtami: ami-01a6be2c952f7ac23
+       fgtami: ami-0980a6c5462eb20c7
     ap-south-1:
-       fgtami: ami-05ba002f63a1766d3
+       fgtami: ami-03ce0208e1bf0a4c2
     eu-west-3:
-       fgtami: ami-04f09fc1ddc84c818
+       fgtami: ami-0a2f70eeaccb4f756
     eu-west-2:
-       fgtami: ami-09310a84e790cc655
+       fgtami: ami-0e0cf6ee5949311d3
     eu-south-1:
-       fgtami: ami-0a52973d2d3c48130
+       fgtami: ami-00c0fd80460334680
     eu-west-1:
-       fgtami: ami-0788ecffa9d575080
+       fgtami: ami-0295b18e7c5c68440
     ap-northeast-3:
-       fgtami: ami-07174a037bf829c0c
+       fgtami: ami-0dba0e863219fbd2c
     ap-northeast-2:
-       fgtami: ami-0e12f8836f40e8b3e
+       fgtami: ami-01966ce84e55ce9af
     me-south-1:
-       fgtami: ami-0f2d1a2615e27b2e7
+       fgtami: ami-0e971c7104d9ab577
     ap-northeast-1:
-       fgtami: ami-0f507a2fdcdacd65d
+       fgtami: ami-08e9a008d439bd92d
     sa-east-1:
-       fgtami: ami-008d212dd6df8933c
+       fgtami: ami-0f857d7ef57d996d7
     ca-central-1:
-       fgtami: ami-0023a316c322bddae
+       fgtami: ami-0f575e9fe174cc613
     ap-east-1:
-       fgtami: ami-02be0ef8447edb43e
+       fgtami: ami-040df30827808387e
     ap-southeast-1:
-       fgtami: ami-06dee2ed266b9cf09
+       fgtami: ami-0abcebf6fa84ec1c9
     ap-southeast-2:
-       fgtami: ami-0ea305a185f601084
+       fgtami: ami-0d4a09cac89f2cb2b
     eu-central-1:
-       fgtami: ami-0c2627a529b12b091
+       fgtami: ami-09b319a3f356c62a3
     ap-southeast-3:
-       fgtami: ami-068ba85d1fa328916
+       fgtami: ami-08b193fa0e26053bc
     us-east-1:
-       fgtami: ami-03e7e7d91a52ca5a8
+       fgtami: ami-035a7ca1d22b2ac60
     us-east-2:
-       fgtami: ami-0e113c50f06a97400
+       fgtami: ami-0c89751940e00028a
     us-west-1:
-       fgtami: ami-082652dab4c2b2b08
+       fgtami: ami-027023effe0d0cbcb
     us-west-2:
-       fgtami: ami-07088d7493c5a0800
+       fgtami: ami-0e18da7f57b1455de
   AWSInstanceType2Arch:
     t3.micro:
       Arch: HVM64
