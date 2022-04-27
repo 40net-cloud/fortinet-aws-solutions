@@ -1493,21 +1493,34 @@ Resources:
             - template = '''\
             - config system global
             - set hostname {hostname}
-            - set vdom-mode split-vdom
+            - set vdom-mode multi-vdom
+            - end
+            - config vdom 
+            - edit root 
+            - config system settings
+            - set vdom-type admin
+            - end
+            - end
+            - config vdom 
+            - edit fg-traffic
+            - config system settings
+            - set vdom-type traffic
+            - end
             - end
             - config global
             - config system interface
             - edit port1
+            - set vdom "root"
             - set defaultgw disable
             - set allowaccess ping http https ssh
             - next
             - edit port2
-            - set vdom "FG-traffic"
+            - set vdom "fg-traffic"
             - set defaultgw disable
             - set allowaccess ping http https ssh
             - next
             - edit port3
-            - set vdom "FG-traffic"
+            - set vdom "fg-traffic"
             - set defaultgw disable
             - set allowaccess ping http https ssh
             - end
@@ -1522,7 +1535,7 @@ Resources:
             - end
             - end
             - config vdom
-            - edit FG-traffic
+            - edit fg-traffic
             - config system geneve
             - edit "gen"
             - set interface "port2"
@@ -1736,5 +1749,3 @@ Resources:
           - "'"
           - "}"
 Outputs: {}
-
-    
