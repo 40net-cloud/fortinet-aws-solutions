@@ -1,4 +1,4 @@
 ##### PAYG Images
 |v7.2.2|
 |:-:|
-|[![Deploy to AWS](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svsg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/40net-cloud/fortinet-oci-solutions/releases/download/activepassivedualad/FGT_A-P_Dual-AD_NewVCN_v6.4.10_PAYG.zip)|
+|[![Deploy to AWS](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/7.2/7.2.2/FGT_AP_HA_XAZ_newVPC_PAYG.template.json&stackName=FortiGate_Active_Passive_PAYG_Multi_AZ_v7.2.2)|
