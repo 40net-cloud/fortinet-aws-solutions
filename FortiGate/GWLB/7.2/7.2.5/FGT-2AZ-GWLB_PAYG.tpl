@@ -214,52 +214,60 @@ Parameters:
       - us-west-2
 Mappings:
   RegionMap:
-    af-south-1:
-       fgtami: ami-06353c284a8ce1721
+    ap-south-2:
+       fgtami: ami-00be515f637918067
     ap-south-1:
-       fgtami: ami-03b3ee6e35c8ec4ca
-    eu-north-1:
-       fgtami: ami-0dba058f267b1d293
-    eu-west-3:
-       fgtami: ami-0dd5777adef9dafe3
+       fgtami: ami-0af5e68e859548bdd
     eu-south-1:
-       fgtami: ami-07ddecb23030655e9
-    eu-west-2:
-       fgtami: ami-0cf32751817ec5915
-    eu-west-1:
-       fgtami: ami-0cb49778c9484e291
-    ap-northeast-3:
-       fgtami: ami-07277a4b7cd874be0
-    ap-northeast-2:
-       fgtami: ami-0453a6b4bcdde92e6
-    me-south-1:
-       fgtami: ami-0666b16163d2d27b5
-    ap-northeast-1:
-       fgtami: ami-044ad1e9a0655822c
+       fgtami: ami-0bd649854a5e9b687
+    eu-south-2:
+       fgtami: ami-07c137d269799f5e3
     me-central-1:
-       fgtami: ami-0dcc449f9ffb92bb2
+       fgtami: ami-021186b81d834e27a
     ca-central-1:
-       fgtami: ami-03c1ca58095f053ac
-    sa-east-1:
-       fgtami: ami-068daf5e38aed7986
-    ap-east-1:
-       fgtami: ami-0b8dfae08067acdad
-    ap-southeast-1:
-       fgtami: ami-0c1fb2b5f6cd63373
-    ap-southeast-2:
-       fgtami: ami-0115d006c0c4bf75a
+       fgtami: ami-07ca90040a85b5326
     eu-central-1:
-       fgtami: ami-01ae0421a1137eb4a
-    ap-southeast-3:
-       fgtami: ami-0a423117c2f585a41
-    us-east-1:
-       fgtami: ami-0a90787e45394d6a3
-    us-east-2:
-       fgtami: ami-0498a9364c3b7cb77
+       fgtami: ami-0cc7cd465b6b7d778
+    eu-central-2:
+       fgtami: ami-06d79930ba6ce7a9b
     us-west-1:
-       fgtami: ami-000db587ef3d35447
+       fgtami: ami-0231238b719ecbc02
     us-west-2:
-       fgtami: ami-0b3a9dbce4f4ff1b0
+       fgtami: ami-0c886fc13baf82eec
+    af-south-1:
+       fgtami: ami-086276201cb54c9fc
+    eu-north-1:
+       fgtami: ami-0ebf8472461c6a79b
+    eu-west-3:
+       fgtami: ami-0f027aa66394b3e3b
+    eu-west-2:
+       fgtami: ami-091380cf617c2b459
+    eu-west-1:
+       fgtami: ami-089190cb9700b1ce1
+    ap-northeast-3:
+       fgtami: ami-0cebabdde34ad0cc1
+    ap-northeast-2:
+       fgtami: ami-0a5fbf03df8482435
+    me-south-1:
+       fgtami: ami-0885e72dcff120785
+    ap-northeast-1:
+       fgtami: ami-0c589bdc7bbb37201
+    sa-east-1:
+       fgtami: ami-09a0eb546f679beaf
+    ap-east-1:
+       fgtami: ami-07e77fca7b8b35e2c
+    ap-southeast-1:
+       fgtami: ami-0bf899aea62182619
+    ap-southeast-2:
+       fgtami: ami-0c470b6d59bc1b68d
+    ap-southeast-3:
+       fgtami: ami-071310a8402cc6eb4
+    ap-southeast-4:
+       fgtami: ami-0cc847f4b807eb513
+    us-east-1:
+       fgtami: ami-03ebf840a8a373e93
+    us-east-2:
+       fgtami: ami-0681741821bb2ae99
   AWSInstanceType2Arch:
     t3.micro:
       Arch: HVM64
