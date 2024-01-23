@@ -1,6 +1,6 @@
 # Provide advanced L7 security to AWS TGW designs using FortiGate VM and AWS GWLB
 
-## Introduction
+## Introduction 
 
 When enterprises have their resources spread over the cloud, they often use segmentation as a first step into their journey dedicated to security. In AWS it usually means their network architecture will involve a Transit Gateway (TGW).
 
