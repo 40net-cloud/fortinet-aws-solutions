@@ -1,6 +1,6 @@
 # AWS Transit Gateway flows secured by a pair of Active/Passive Fortigate running High Availability 
 
-## Introduction
+## Introduction 
 
 When enterprises have their resources spread over the cloud, they often use segmentation as a first step into their journey dedicated to security. In AWS it usually means their network architecture will involve a Transit Gateway (TGW).
 This project gives an example of the usage of the recently (November 2018) announced [AWS Transit Gateway](https://aws.amazon.com/transit-gateway/) product. That component provides a way to interconnect multiple VPCs in a hub-spoke topology.
