@@ -1,4 +1,4 @@
-# Active/Passive High Available FortiGate pair running in 2 Availability Zones
+# Active/Passive FortiGate HA cluster Multi-AZ Deployment
 
 |FortiGate A/P Multi-AZ (New VPC deployment)|FortiGate A/P Multi-AZ (Existing VPC deployment)|
 |:-:|:-:|
