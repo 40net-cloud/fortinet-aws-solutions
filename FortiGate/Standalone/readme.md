@@ -1,5 +1,3 @@
-coming soon...
-
 # FortiGate-VM Standalone Deployment
 
 |1-Button-Deployment CFT Templates|
