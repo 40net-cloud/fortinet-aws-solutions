@@ -1,6 +1,6 @@
 A set of AWS Templates for getting you started in AWS with Fortinet solutions. This repository is a place to test and publish the latest templates to be published on github.com/fortinet or custom templates. 
 
-### Active/Passive FortiGate HA cluster Multi-AZ Deployment
+### FortiGate Active/Passive HA Multi-AZ Deployment
 
 |1-Button-Deployment|
 |:-:|
@@ -9,7 +9,7 @@ A set of AWS Templates for getting you started in AWS with Fortinet solutions. T
 |FortiGate A/P Multi-AZ (Existing VPC)|
 |[![Deploy to AWS](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fgt/fgt_ap_multi_az_existingvpc.yaml&stackName=FortiGate-Active-Passive-Cluster)|
 
-### FortiGate-VM Standalone Deployment
+### FortiGate Standalone Deployment
 
 |1-Button-Deployment|
 |:-:|
