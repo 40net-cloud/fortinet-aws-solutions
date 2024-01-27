@@ -1,4 +1,4 @@
-Coming soon... (Links below might not work yet)
+Coming soon...
 <!--
 # FortiAnalyzer-VM Standalone Deployment
 
