@@ -1,6 +1,6 @@
 A set of AWS Templates for getting you started in AWS with Fortinet solutions. This repository is a place to test and publish the latest templates to be published on github.com/fortinet or custom templates. 
 
-### FortiGate 1-Button-Deployment Scenarios
+### FortiGate Deployment Scenarios
 
 |Active/Passive HA Multi-AZ Deployment|
 |:-:|
