@@ -1,0 +1,84 @@
+name: List Image IDs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  list_image_ids:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1  # Specify your AWS region
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x  # Specify the version of Python you want to use
+
+    - name: Install jq
+      run: sudo apt-get install jq
+
+    - name: Run Bash script
+      run: |
+        VERSION=$1
+        if [[ -n "$VERSION" ]]; then
+          echo "Version: $VERSION"
+        else
+          echo "Set version as ex. ./list_image_id.sh 7.2.2"
+          exit 1
+        fi
+
+        # Cleanup
+        rm $VERSION_PAYG_json.txt
+        rm $VERSION_BYOL_json.txt
+        rm $VERSION_PAYG_yaml.txt
+        rm $VERSION_BYOL_yaml.txt
+
+        # Prep file
+        echo "Mappings:" > $VERSION_PAYG_yaml.txt
+        echo "  RegionMap:" >> $VERSION_PAYG_yaml.txt
+        echo "Mappings:" > $VERSION_BYOL_yaml.txt
+        echo "  RegionMap:" >> $VERSION_BYOL_yaml.txt
+
+        echo "-------------- Listing all imageid for all regions PAYG -------------"
+
+        export REGIONSLIST=$(aws ec2 describe-regions | jq -r .Regions[].RegionName)
+        export LOOKUP="Name=name,Values=*FortiGate-VM64-*AWSONDEMAND*$VERSION*"
+
+        for value in $REGIONSLIST; do
+          REGION=$value
+          IMAGE_ID=$(aws ec2 describe-images --filters $LOOKUP --region $value | jq -r .Images[].ImageId)
+          echo -e '\t\t\t'"\"$REGION\":{\"fgtami\": \"$IMAGE_ID\"}," >> $VERSION_PAYG_json.txt
+          echo -e "    $REGION:" >> $VERSION_PAYG_yaml.txt
+          echo -e "       fgtami: $IMAGE_ID" >> $VERSION_PAYG_yaml.txt
+        done
+
+        echo "-------------- Listing all imageid for all regions BYOL -------------"
+
+        LOOKUP="Name=name,Values=*FortiGate-VM64-AWS?build*$VERSION*"
+
+        for value in $REGIONSLIST; do
+          REGION=$value
+          IMAGE_ID=$(aws ec2 describe-images --filters $LOOKUP --region $value | jq -r .Images[].ImageId)
+          echo -e '\t\t\t'"\"$REGION\":{\"fgtami\": \"$IMAGE_ID\"}," >> $VERSION_BYOL_json.txt
+          echo -e "    $REGION:" >> $VERSION_BYOL_yaml.txt
+          echo -e "       fgtami: $IMAGE_ID" >> $VERSION_BYOL_yaml.txt
+        done
+
+        # Cleanup file
+        truncate -s -2 $VERSION_PAYG_json.txt
+        echo -e "\n" >> $VERSION_PAYG_json.txt
+        truncate -s -2 $VERSION_BYOL_json.txt
+        echo -e "\n" >> $VERSION_BYOL_json.txt
+      env:
+        VERSION: ${{ github.event_name }}
