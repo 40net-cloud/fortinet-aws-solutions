@@ -18,10 +18,10 @@ output "Username" {
   value = "admin"
 }
 
-output "First Login Password for FortiWeb-A" {
+output "First_Login_Password_for_FortiWeb-A" {
   value = aws_instance.fwbactive1.id
 }
 
-output "First Login Password for FortiWeb-B" {
+output "First_Login_Password_for_FortiWeb-B" {
   value = aws_instance.fwbactive2.id
 }

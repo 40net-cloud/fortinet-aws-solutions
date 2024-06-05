@@ -32,15 +32,15 @@ resource "aws_instance" "fwbactive2" {
   instance_type     = var.size
   availability_zone = var.az2
   key_name          = var.keyname
-  user_data = templatefile("${var.bootstrap-active2}", {
-    type          = "${var.license_type}"
-    format        = "${var.license_format}"
-    port1_ip      = "${var.active2port1}"
-    port1_mask    = "${var.active2port1mask}"
-    port2_ip      = "${var.active2port2}"
-    port2_mask    = "${var.active2port2mask}"
-    adminsport    = "${var.adminsport}"
-  })
+//  user_data = templatefile("${var.bootstrap-active2}", {
+//    type          = "${var.license_type}"
+//    format        = "${var.license_format}"
+//    port1_ip      = "${var.active2port1}"
+//    port1_mask    = "${var.active2port1mask}"
+//    port2_ip      = "${var.active2port2}"
+//    port2_mask    = "${var.active2port2mask}"
+//    adminsport    = "${var.adminsport}"
+//  })
 
   root_block_device {
     volume_type = "standard"
