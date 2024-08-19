@@ -182,7 +182,7 @@ variable "fwbami" {
     eu-west-1 = {
       x86 = {
         payg = "ami-00f952aa957d05886"
-        byol = "ami-046eab2709336226e"
+        byol = "ami-01d579f2da9a69fd2"
       }
     },
     eu-west-2 = {
