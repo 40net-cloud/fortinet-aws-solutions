@@ -28,7 +28,6 @@ The templates can deploy devices in PAYG (on demand) or BYOL (you provide the li
   - BYOL: A demo license can be made available via your Fortinet partner or on our website. These can be injected during deployment or added after deployment. Purchased licenses need to be registered on the [Fortinet support site] (http://support.fortinet.com). Download the .lic file after registration. Note, these files may not work until 30 minutes after it's initial creation.
   - PAYG or OnDemand: These licenses are automatically generated during the deployment of the FortiGate systems.
 
-
 The templates will deploy a solution containing the following components.
   - 2 FortiGate firewall's in an active/passive deployment
   - (with newVPC behaviour) 1 VPC with 4 protected subnets (1 private, 1 Public in 2 zones) and 4 subnets required for the FortiGate deployment (ha and management in 2 zones). If using an existing VPC, it must already have 8 subnets
