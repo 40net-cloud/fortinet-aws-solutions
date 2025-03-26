@@ -1,11 +1,10 @@
-Coming soon...
-<!--
 # FortiManager-VM Standalone Deployment
 
-|1-Button-Deployment CFT Templates|
-|:-:|
-|FortiManager Standalone (New VPC)|
-|[![Deploy to AWS](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fmg/fmg_standalone_newvpc.yaml&stackName=FortiManager-Standalone-New-VPC)|
-|FortiManager Standalone (Existing VPC)|
-|[![Deploy to AWS](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fmg/fmg_standalone_existingvpc.yaml&stackName=FortiManager-Standalone-Existing-VPC)|
--->
+| **Description** | **CloudFormation Template** | **1-Button Deployment** |
+|-----------------|-----------------------------|-------------------------|
+| **FortiManager Standalone (New VPC)**<br><br>Creates a new VPC, subnet and deploys FortiManager-VM <br> [Click for more details](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiManager/new_vpc_readme.md) | <div align="center">[<img src="https://ftnt-cfts.s3.eu-central-1.amazonaws.com/shared/downloadicon.png" alt="CloudFormation Template">](https://ftnt-cfts.s3.amazonaws.com/fmg/fmg_standalone_newvpc.yaml)</div> | [![Launch Stack](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fmg/fmg_standalone_newvpc.yaml&stackName=FortiManager-Standalone-New-VPC) |
+| **FortiManager Standalone (Existing VPC)**<br><br>Deploys a FortiManager-VM into an existing VPC <br>[Click for more details](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiManager/existing_vpc_readme.md)| <div align="center">[<img src="https://ftnt-cfts.s3.eu-central-1.amazonaws.com/shared/downloadicon.png" alt="CloudFormation Template">](https://ftnt-cfts.s3.amazonaws.com/fmg/fmg_standalone_existingvpc.yaml)</div> | [![Launch Stack](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fmg/fmg_standalone_existingvpc.yaml&stackName=FortiManager-Standalone-Existing-VPC) |
+
+### Official Fortinet Documentation
+Browse for more information: <br>[FortiManager AWS Administration Guide](https://docs.fortinet.com/document/fortimanager-public-cloud/7.6.0/aws-administration-guide/819045/about-fortimanager-for-aws)<br>
+[Fortinet AWS Solutions Hub](https://docs.fortinet.com/cloud-solutions/aws)
