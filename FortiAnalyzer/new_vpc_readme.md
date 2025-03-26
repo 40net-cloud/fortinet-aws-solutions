@@ -21,7 +21,7 @@ This CloudFormation template automates the deployment of a **standalone FortiAna
   - SSH key pair support
 
 - ⛑️ **Monitoring**
-  - Email notification configuration (future-proofed)
+  - Email notification configuration
 
 ---
 
