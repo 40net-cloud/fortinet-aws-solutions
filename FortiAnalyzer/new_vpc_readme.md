@@ -1,6 +1,6 @@
 # 🚀 AWS CloudFormation Template - FortiAnalyzer Standalone Deployment
 
-This CloudFormation template automates the deployment of a **standalone FortiAnalyzer-VM** in a **new AWS VPC**. It provisions all the necessary infrastructure, applies initial configuration, and retrieves the latest compatible AMI from the AWS Marketplace.
+This CloudFormation template automates the deployment of a **standalone FortiAnalyzer-VM** in a **new AWS VPC**. It provisions all the necessary infrastructure, and retrieves the latest compatible AMI from the AWS Marketplace.
 
 ---
 
@@ -14,15 +14,13 @@ This CloudFormation template automates the deployment of a **standalone FortiAna
   - Configurable instance type
   - Latest AMI selected dynamically via Lambda
   - Optional EBS volume encryption
-  - Custom UserData script for network/bootstrap config
 
 - 🔒 **Security & Access**
   - Security Groups for public & VPC-wide access
   - Elastic IP for management access
   - SSH key pair support
 
-- ⛑️ **Monitoring & Recovery**
-  - CloudWatch alarm for system recovery on failure
+- ⛑️ **Monitoring**
   - Email notification configuration (future-proofed)
 
 ---
@@ -55,17 +53,6 @@ This CloudFormation template automates the deployment of a **standalone FortiAna
 ## 📌 Notes
 
 - FortiAnalyzer AMI is selected dynamically via Lambda using product code & version mapping.
-- Default bootstrap config sets hostname, interface, and basic firewall/NAT rules.
 - This template is intended for test/dev or standalone deployments, not for high-availability clusters.
 
 ---
-
-## 📎 License
-
-MIT (or align with your repo/project license)
-
----
-
-## 👨‍💻 Maintainer
-
-For questions or issues, please open an issue or reach out to [admin@example.com](mailto:admin@example.com).
