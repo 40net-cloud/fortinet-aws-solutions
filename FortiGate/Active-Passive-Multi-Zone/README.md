@@ -1,11 +1,10 @@
 # Active/Passive FortiGate HA cluster Multi-AZ Deployment
 
-|1-Button-Deployment CFT Templates|
-|:-:|
-|FortiGate A/P Multi-AZ (New VPC)|
-|[![Deploy to AWS](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fgt/fgt_ap_multi_az_newvpc.yaml&stackName=FortiGate-Active-Passive-Cluster-New-VPC)|
-|FortiGate A/P Multi-AZ (Existing VPC)|
-|[![Deploy to AWS](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fgt/fgt_ap_multi_az_existingvpc.yaml&stackName=FortiGate-Active-Passive-Cluster-Existing-VPC)|
+| **FortiGate Deployment Templates** | **CloudFormation Template** | **1-Button Deployment** |
+|-----------------|-----------------------------|-------------------------|
+| **FortiGate Active/Passive FGCP Cluster (New VPC)**<br><br>*Creates a required infrastructure, and deploys a FortiGate Active/Passive FGCP cluster* | <div align="center">[<img src="https://ftnt-cfts.s3.eu-central-1.amazonaws.com/shared/downloadicon.png" alt="CloudFormation Template">](https://ftnt-cfts.s3.amazonaws.com/fgt/fgt_ap_multi_az_newvpc.yaml)</div> | [![Launch Stack](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fgt/fgt_ap_multi_az_newvpc.yaml&stackName=FortiGate-FGCP-Cluster-New-VPC) |
+| **FortiGate Active/Passive FGCP Cluster (Existing VPC)**<br><br>*Deploys a FortiGate-VM Active/Passive FGCP cluster into an existing VPC* | <div align="center">[<img src="https://ftnt-cfts.s3.eu-central-1.amazonaws.com/shared/downloadicon.png" alt="CloudFormation Template">](https://ftnt-cfts.s3.amazonaws.com/fgt/fgt_ap_multi_az_existingvpc.yaml)</div> | [![Launch Stack](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fgt/fgt_ap_multi_az_existingvpc.yaml&stackName=FortiGate-FGCP-Cluster-New-VPC) |
+||||
 
 # Introduction
 
