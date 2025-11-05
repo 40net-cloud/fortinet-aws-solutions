@@ -15,6 +15,14 @@ A curated collection of AWS CloudFormation templates to **quickly deploy Fortine
 
 <br>
 
+| **FortiWeb Deployment Templates** | **CloudFormation Template** | **1-Button Deployment** |
+|-----------------|-----------------------------|-------------------------|
+| **FortiWeb Standalone (New VPC)**<br><br>Creates a new VPC, subnet and deploys FortiWeb-VM <br> [Click for more details](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiWeb/new_vpc_readme.md) | <div align="center">[<img src="https://ftnt-cfts.s3.eu-central-1.amazonaws.com/shared/downloadicon.png" alt="CloudFormation Template">](https://ftnt-cfts.s3.amazonaws.com/fwb/fwb_standalone_newvpc.yaml)</div> | [![Launch Stack](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fwb/fwb_standalone_newvpc.yaml&stackName=FortiWeb-Standalone-New-VPC) |
+| **FortiWeb Standalone (Existing VPC)**<br><br>Deploys a FortiWeb-VM into an existing VPC <br>[Click for more details](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiWeb/existing_vpc_readme.md)| <div align="center">[<img src="https://ftnt-cfts.s3.eu-central-1.amazonaws.com/shared/downloadicon.png" alt="CloudFormation Template">](https://ftnt-cfts.s3.amazonaws.com/fwb/fwb_standalone_existingvpc.yaml)</div> | [![Launch Stack](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fwb/fwb_standalone_existingvpc.yaml&stackName=FortiWeb-Standalone-Existing-VPC) |
+||||
+
+<br>
+
 | **FortiManager Deployment Templates** | **CloudFormation Template** | **1-Button Deployment** |
 |-----------------|-----------------------------|-------------------------|
 | **FortiManager Standalone (New VPC)**<br><br>Creates a new VPC, subnet and deploys FortiManager-VM <br> [Click for more details](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiManager/new_vpc_readme.md) | <div align="center">[<img src="https://ftnt-cfts.s3.eu-central-1.amazonaws.com/shared/downloadicon.png" alt="CloudFormation Template">](https://ftnt-cfts.s3.amazonaws.com/fmg/fmg_standalone_newvpc.yaml)</div> | [![Launch Stack](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fmg/fmg_standalone_newvpc.yaml&stackName=FortiManager-Standalone-New-VPC) |
