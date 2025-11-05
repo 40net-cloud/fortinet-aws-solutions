@@ -1,58 +1,59 @@
-# 🛡️ FortiWeb (Standalone) Deployment in a New VPC on AWS
+# 🚀 AWS CloudFormation Template - FortiWeb Standalone Deployment
 
-This AWS CloudFormation template (`fwb_standalone_newvpc.yaml`) deploys a **FortiWeb (FWB) standalone instance** into a **new Virtual Private Cloud (VPC)** environment. It provisions all the necessary AWS infrastructure including networking, security, and FortiWeb configuration resources.
-
----
-
-## 🗺️ Deployment Overview
-
-This template launches the following in your AWS environment:
-
-- A new **VPC** with public and private subnets across multiple Availability Zones
-- **FortiWeb EC2 instance** in a public subnet
-- Required **security groups**, **IAM roles**, **Elastic IP addresses**
-- Route tables, Internet Gateway, NAT Gateway, and necessary networking components
-- Parameters for custom configurations such as license type, instance size, admin credentials, etc.
+This CloudFormation template automates the deployment of a **standalone FortiWeb-VM** in a **new AWS VPC**. It provisions all the necessary infrastructure, and retrieves the latest compatible AMI from the AWS Marketplace.
 
 ---
 
-## ⚙️ Template Parameters
+## 📦 What’s Deployed
 
-The following parameters can be customized at deployment:
+- 🧱 **VPC Infrastructure**
+  - New VPC with user-defined CIDR
+  - Public and Private Subnets with router IPs
+  - Internet Gateway + Route Tables
 
-| Parameter | Description | Default |
-|----------|-------------|---------|
-| `VpcCidr` | CIDR block for the new VPC | `10.0.0.0/16` |
-| `PublicSubnet1Cidr` | CIDR block for public subnet in AZ1 | `10.0.1.0/24` |
-| `PrivateSubnet1Cidr` | CIDR block for private subnet in AZ1 | `10.0.2.0/24` |
-| `AvailabilityZone1` | AWS Availability Zone for deployment | `us-east-1a` |
-| `InstanceType` | EC2 instance type for FortiWeb | `c5.large` |
-| `FWBUsername` | Admin username for FortiWeb | `admin` |
-| `FWBPassword` | Admin password for FortiWeb | *(No default)* |
-| `LicenseType` | Choose BYOL or PAYG license model | `BYOL` |
-| `KeyPairName` | Name of the EC2 KeyPair to SSH into instance | *(Required)* |
+- 🧰 **FortiWeb EC2 Instance**
+  - Configurable instance type
+  - Latest AMI selected dynamically via Lambda
+  - Deployed in user-selected Availability Zone
 
-> 🔒 **Note**: You must provide your own key pair and password at deployment. Password must meet FortiWeb complexity requirements.
+- 🔒 **Security & Access**
+  - Security Groups for management and data access
+  - Elastic IP for management interface
+  - SSH key pair support for administrative access
+
+- ⛑️ **Monitoring**
+  - Email notification configuration for CloudWatch alarms
 
 ---
 
-## 🚀 Deployment Instructions
+## 🔧 Parameters
 
-### 🖥️ Option 1: Deploy via AWS Console
+| Parameter | Description |
+|------------|-------------|
+| `VPCCIDR` | CIDR range for new VPC (default `10.0.0.0/16`) |
+| `PublicSubnet` | Public subnet range (default `10.0.1.0/24`) |
+| `PublicSubnetRouterIP` | Gateway IP for public subnet (default `10.0.1.1`) |
+| `PrivateSubnet` | Private subnet range (default `10.0.2.0/24`) |
+| `PrivateSubnetRouterIP` | Gateway IP for private subnet (default `10.0.2.1`) |
+| `AZForFWB` | Availability Zone to deploy FortiWeb |
+| `FortiWebVersion` | Version of FortiWeb (e.g., 7.4.x, 7.6.x) |
+| `LicenseType` | Choose BYOL or PAYG for appropriate license model |
+| `FWBInstanceType` | Instance type for FortiWeb (default `c5.xlarge`) |
+| `CIDRForFWBccess` | IP range allowed to access FortiWeb |
+| `KeyPair` | EC2 KeyPair name for SSH access |
+| `EmailNotification` | Email for CloudWatch alarm (optional) |
 
-1. Go to the AWS CloudFormation console.
-2. Choose **"Create stack with new resources (standard)"**.
-3. Upload the `fwb_standalone_newvpc.yaml` file.
-4. Fill in the parameter values as needed.
-5. Acknowledge required capabilities (IAM roles).
-6. Launch the stack.
+---
 
-### 💻 Option 2: Deploy via AWS CLI
+## 📤 Outputs
 
-```bash
-aws cloudformation create-stack \
-  --stack-name FortiWeb-Standalone \
-  --template-body file://fwb_standalone_newvpc.yaml \
-  --capabilities CAPABILITY_NAMED_IAM \
-  --parameters ParameterKey=KeyPairName,ParameterValue=MyKeyPair \
-               ParameterKey=FWBPassword,ParameterValue='MySecurePassword123!'
+- 🔗 `FWBURL` – Web GUI URL for FortiWeb access  
+- 👤 `FWBUsername` – Default username (`admin`)  
+- 🔐 `FWBPassword` – Reference to instance password (manual retrieval)  
+
+---
+
+## 📌 Notes
+
+- FortiWeb AMI is selected dynamically via Lambda using product code & version mapping.  
+- This template is intended for test/dev or standalone deployments, not for high-availability clusters.  
