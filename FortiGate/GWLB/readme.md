@@ -83,20 +83,18 @@ Return traffic is nearly similair: after they are cleaned by the Fortigate devic
 
 ## How to deploy
 
-The templates can deploy devices in PAYG (on demand) or BYOL (you provide the licence) models. You can select the appropriate template using the extension in the names. Ex: FGT-2AZ-GWLB_extension.yaml
-  - BYOL: A demo license can be made available via your Fortinet partner or on our website. These can be injected during deployment or added after deployment. Purchased licenses need to be registered on the ![Fortinet support site](http://support.fortinet.com). Download the .lic file after registration. Note, these files may not work until 30 minutes after it's initial creation.
-  - PAYG or OnDemand: These licenses are automatically generated during the deployment of the FortiGate systems.
+The templates support both PAYG (On-Demand) and BYOL licensing models.
+  - BYOL: Demo licenses can be obtained from your Fortinet partner or the Fortinet website. Licenses can be injected during deployment or added afterward. Purchased licenses must be registered on the Fortinet Support site before downloading the .lic file—note that newly created license files may take up to 30 minutes before becoming active.
+  - PAYG: Licenses are automatically generated when the FortiGate instances are deployed.
 
-
-The templates will deploy a solution containing the following components.
-  - A Transit Gateway configured in appliance mode with 2 routing tables (associated to the VPCs, associated to the security VPC), all attachements and associations with the VPCs.
-  - 1 security VPC with 8 subnets (1 relay subnet, 1 subnet hosting the GWLB endpoint, 1 subnet for the GWLB enis and 1 public subnet for the security devices x 2 zones) and 2 eni required for each FortiGate.
-  - 1 GWLB located in the security VPC described above. It is configured with cross zones enabled.
-  - 2 FortiGate firewall's in standalone mode already configured with geneve tunnels to the GWLB
-  - 1 public IPs for each Fortigate device. 
-  - 2 spokes VPC running a linux device to be used for testing (E-W & S-N traffic directions)
-
-
+The templates deploy the following architecture:
+  - A Transit Gateway in appliance mode with two routing tables (one for the VPCs, one for the security VPC), including all required attachments and associations
+  - A security VPC with eight subnets across two AZs: (Relay subnet, GWLBe subnet, GWLB ENI subnet, public subnet, two ENIs per FortiGate
+  - A Gateway Load Balancer in the security VPC with cross-zone capability enabled
+  - Two standalone FortiGate firewalls preconfigured with Geneve tunnels to the GWLB
+  - Public IPs assigned to each FortiGate
+  - Two spoke VPCs, each hosting a Linux instance for E-W and S-N traffic testing
+  
 ![deployment from template](images/gwlb-deployed.png)
 
 
