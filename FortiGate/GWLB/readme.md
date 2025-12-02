@@ -10,11 +10,11 @@ AWS has since introduced the Gateway Load Balancer ![GWLB](https://aws.amazon.co
 
 ### About GWLB
 
-GWLB was released to help AWS :
+AWS introduced the Gateway Load Balancer (GWLB) to make it easier to deploy and operate network security appliances. GWLB helps you:
 
- - Deploy 3rd party virtual appliances faster
- - Scale virtual appliances while managing costs
- - Improve virtual appliance reliability
+ - Deploy third-party virtual appliances more quickly
+ - Scale appliances efficiently while controlling costs
+ - Improve reliability and availability of virtual appliance fleets
 
 It is made of three major components:
 
