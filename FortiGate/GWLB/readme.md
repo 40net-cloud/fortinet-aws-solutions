@@ -24,10 +24,9 @@ It is made of three major components:
 
 <img src="images/icon-endpoint.png" width="32" height="32"> **Gateway Load Balancer Endpoint (GWLBe)** – A route-table target that sends traffic to the GWLB via PrivateLink. GWLBe is a zonal construct—one endpoint per Availability Zone (with limited exceptions).
 
-As GWLB has been designed to take AWS zoning into consideration, the sessions will be preferably dispatched to targets located in the same zone as the origin of the traffic. This introduces a limitation with large architectures where sources and destinations may be located in different zones. 
+GWLB is designed with AWS Availability Zones in mind, preferring to send sessions to targets within the same zone as the traffic source. In large architectures, this can create challenges when sources and destinations span multiple zones.
 
-TGW component may be used as a relay and stateful object to avoid assymetric flows when dealing with multi zones communications. It is a mandatory object to support advanced security for E-W traffic multi zones.
-
+To maintain symmetry and avoid cross-zone flow issues, a Transit Gateway (TGW) can act as a relay and stateful anchor for east-west traffic. In multi-AZ designs, TGW becomes essential for supporting advanced, stateful security across zones.
 
 ## Design
 
