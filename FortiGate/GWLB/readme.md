@@ -2,12 +2,11 @@
 
 ## Introduction 
 
-When enterprises have their resources spread over the cloud, they often use segmentation as a first step into their journey dedicated to security. In AWS it usually means their network architecture will involve a Transit Gateway (TGW).
+As enterprises expand across the cloud, network segmentation becomes a key early step in building a secure architecture. In AWS, this often involves using a Transit Gateway (TGW) to interconnect multiple VPCs.
 
-The Transit Gateway is meant to supersede the more complex and expensive Transit VPC technology. This is a didactic example to showcase how a Transit VPC should be configured to achieve a non-trivial (full mesh) scenario. It is the most useful EC2 component to achieve a hub and spoke architecture. 
+Before TGW, many organizations relied on the Transit VPC pattern. This repository provides a concise, didactic example of how a Transit VPC can be configured to support a non-trivial full-mesh scenario, highlighting the routing concepts behind hub-and-spoke designs.
 
-Recently AWS released a new load balancer to facilitate the integration of security devices into hub and spokes designs. Using ![GWLB](https://aws.amazon.com/elasticloadbalancing/gateway-load-balancer/), stateful sessions can be distributed to security devices thus overcoming some limitations regarding to performance, routing or failover...  
-
+AWS has since introduced the Gateway Load Balancer ![GWLB](https://aws.amazon.com/elasticloadbalancing/gateway-load-balancer/), which simplifies deploying security appliances by distributing stateful traffic across multiple devices, improving performance, routing flexibility, and failover.
 
 ### About GWLB
 
