@@ -18,12 +18,11 @@ AWS introduced the Gateway Load Balancer (GWLB) to make it easier to deploy and 
 
 It is made of three major components:
 
-![icon1](images/icon-gwlb.png) **Gateway Load Balancer** – A load balancer that distributes session to targets that are connected to it via Geneve protocol in the subnets for which it is enabled. The GWLB will only be accessible from these subnets by the Fortigate appliance pool.
+![icon1](images/icon-gwlb.png) **Gateway Load Balancer** – Distributes sessions to appliances using the Geneve protocol. It is accessible only from the subnets where it’s deployed, serving the FortiGate appliance pool.
 
-![icon2](images/icon-targeteni.png) **Target Group Eni** –  The Instance or IP (Fortigate) that acts as a Geneve target for the Gateway Load Balancer. A Fortigate is configured to establish a Geneve Encapsulation interface on this IP/Interface.
+![icon2](images/icon-targeteni.png) **Target Group Eni** –  The FortiGate instances or IPs that act as Geneve targets for the GWLB. Each FortiGate establishes a Geneve-encapsulated interface on its associated ENI.
 
-![icon2](images/icon-endpoint.png) **Gateway Load Balancer Endpoint (GWLBe)** – A destination in a route table that will forward the traffic over PrivateLink to the GWLB to be distributed to the Target Group.
-(Note: GWLBe is a Zonal Construct. One is required in each Zone, with some exceptions)
+![icon2](images/icon-endpoint.png) **Gateway Load Balancer Endpoint (GWLBe)** – A route-table target that sends traffic to the GWLB via PrivateLink. GWLBe is a zonal construct—one endpoint per Availability Zone (with limited exceptions).
 
 As GWLB has been designed to take AWS zoning into consideration, the sessions will be preferably dispatched to targets located in the same zone as the origin of the traffic. This introduces a limitation with large architectures where sources and destinations may be located in different zones. 
 
