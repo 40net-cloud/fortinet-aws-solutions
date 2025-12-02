@@ -87,7 +87,13 @@ The templates support both PAYG (On-Demand) and BYOL licensing models.
   - BYOL: Demo licenses can be obtained from your Fortinet partner or the Fortinet website. Licenses can be injected during deployment or added afterward. Purchased licenses must be registered on the Fortinet Support site before downloading the .lic file—note that newly created license files may take up to 30 minutes before becoming active.
   - PAYG: Licenses are automatically generated when the FortiGate instances are deployed.
 
-The templates deploy the following architecture:
+# Active/Passive FortiGate HA cluster Multi-AZ Deployment
+
+| **FortiGate Deployment Template** | **CloudFormation Template** | **1-Button Deployment** |
+|-----------------|-----------------------------|-------------------------|
+| **FortiGate A/A Cluster with GWLB & TGW - Demo setup (New VPC)**<br><br>*Creates a required infrastructure, and deploys a FortiGate Active/Active with GWLB* | <div align="center">[<img src="https://ftnt-cfts.s3.eu-central-1.amazonaws.com/shared/downloadicon.png" alt="CloudFormation Template">](https://ftnt-cfts.s3.amazonaws.com/fgt/fgt_gwlb_newvpc.yaml)</div> | [![Launch Stack](https://github.com/40net-cloud/fortinet-aws-solutions/blob/master/FortiGate/Active-Passive-Multi-Zone/images/aws_cft_image.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://ftnt-cfts.s3.amazonaws.com/fgt/fgt_gwlb_newvpc.yaml&stackName=FortiGate-GWLB-Cluster-with-TGW-New-VPC) |
+
+The template deploy the following architecture:
   - A Transit Gateway in appliance mode with two routing tables (one for the VPCs, one for the security VPC), including all required attachments and associations
   - A security VPC with eight subnets across two AZs: (Relay subnet, GWLBe subnet, GWLB ENI subnet, public subnet, two ENIs per FortiGate
   - A Gateway Load Balancer in the security VPC with cross-zone capability enabled
