@@ -87,7 +87,7 @@ The templates support both PAYG (On-Demand) and BYOL licensing models.
   - BYOL: Demo licenses can be obtained from your Fortinet partner or the Fortinet website. Licenses can be injected during deployment or added afterward. Purchased licenses must be registered on the Fortinet Support site before downloading the .lic file—note that newly created license files may take up to 30 minutes before becoming active.
   - PAYG: Licenses are automatically generated when the FortiGate instances are deployed.
 
-# Active/Passive FortiGate HA cluster Multi-AZ Deployment
+# Active/Active FortiGate cluster Multi-AZ Deployment witt GWLB & TGW
 
 | **FortiGate Deployment Template** | **CloudFormation Template** | **1-Button Deployment** |
 |-----------------|-----------------------------|-------------------------|
